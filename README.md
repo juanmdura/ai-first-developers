@@ -31,7 +31,7 @@ pip install -r requirements.txt
 python fetch_data.py
 ```
 
-This generates `data.js` consumed by the dashboard.
+This generates `data/cursor_usage.js` consumed by the dashboard.
 
 4. Open the dashboard:
 
@@ -44,8 +44,11 @@ python -m http.server 8080
 
 ```
 ├── index.html          # Dashboard UI (HTML + CSS + Chart.js)
-├── data.js             # Generated data consumed by the dashboard
 ├── fetch_data.py       # Fetches data from Cursor Admin API
+├── server.py           # Flask server with Gemini AI chat endpoint
+├── data/
+│   ├── cursor_usage.js     # Generated Cursor usage data for the dashboard
+│   └── guardian_deploys.json # Guardian DB deployments & metrics data
 ├── requirements.txt    # Python dependencies
 ├── .env.example        # Environment variable template
 └── .gitignore

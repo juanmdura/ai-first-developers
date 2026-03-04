@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Fetch Cursor AI analytics data via the Admin API and generate data.js for the dashboard.
+Fetch Cursor AI analytics data via the Admin API and generate data/cursor_usage.js for the dashboard.
 
 Uses /teams/daily-usage-data (Basic Auth, 30-day max window).
 Aggregates per-user rows into daily team totals.
@@ -269,7 +269,7 @@ def prepare_raw_daily(rows):
 
 
 def write_data_js(raw_daily, output_path):
-    """Write data.js with compact raw daily rows for frontend aggregation."""
+    """Write cursor_usage.js with compact raw daily rows for frontend aggregation."""
     with open(output_path, "w") as f:
         f.write("const R=")
         json.dump(raw_daily, f, separators=(",", ":"))
@@ -301,7 +301,9 @@ def main():
     print(f"  Rows for frontend: {len(raw_daily)}\n")
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    js_path = os.path.join(script_dir, "data.js")
+    data_dir = os.path.join(script_dir, "data")
+    os.makedirs(data_dir, exist_ok=True)
+    js_path = os.path.join(data_dir, "cursor_usage.js")
 
     write_data_js(raw_daily, js_path)
     print(f"Wrote {js_path}")
