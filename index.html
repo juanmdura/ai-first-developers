@@ -96,6 +96,35 @@
       padding: 3px 10px;
     }
 
+    .tab-bar {
+      background: var(--blue-dark);
+      padding: 0 40px;
+      display: flex;
+      gap: 0;
+    }
+    .tab-btn {
+      padding: 11px 24px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.55);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: color .15s, border-color .15s, background .15s;
+      letter-spacing: 0.2px;
+    }
+    .tab-btn:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.05); }
+    .tab-btn.active {
+      color: var(--white);
+      border-bottom-color: var(--white);
+    }
+    @media (max-width: 768px) { .tab-bar { padding: 0 20px; } .tab-btn { padding: 10px 16px; font-size: 12px; } }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
     .container { max-width: 1280px; margin: 0 auto; padding: 32px 40px 56px; }
     @media (max-width: 768px) {
       .topbar { padding-left: 20px; padding-right: 20px; }
@@ -161,6 +190,11 @@
       font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
       background: var(--gray-100); color: var(--blue); text-transform: uppercase; letter-spacing: 0.5px;
     }
+    .deploy-period-btn {
+      cursor: pointer; border: 1px solid var(--gray-200); transition: all .15s;
+    }
+    .deploy-period-btn:hover { background: var(--gray-200); }
+    .deploy-period-btn.active { background: var(--blue); color: var(--white); border-color: var(--blue); }
 
     .tbl-wrap { overflow-x: auto; }
     .sort-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; font-family: 'Inter', sans-serif; }
@@ -300,7 +334,7 @@
   <div class="topbar-brand">
     <div class="topbar-logo">zubale</div>
     <div class="topbar-sep"></div>
-    <div class="topbar-subtitle">AI-first Developers</div>
+    <div class="topbar-subtitle">Engineering Metrics</div>
   </div>
   <div class="topbar-filters">
     <div class="topbar-filter-group">
@@ -322,14 +356,45 @@
   </div>
 </nav>
 
-<div class="container">
-  <div class="section" id="sectionLoc"></div>
-  <hr class="section-divider">
-  <div class="section" id="sectionDev"></div>
-  <hr class="section-divider">
-  <div class="section" id="sectionUsage"></div>
-  <hr class="section-divider">
-  <div class="section" id="sectionTable"></div>
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="ai-first">AI-first Developers</button>
+  <button class="tab-btn" data-tab="deployments">Deployments</button>
+</div>
+
+<div class="tab-content active" id="tab-ai-first">
+  <div class="container">
+    <div class="section" id="sectionLoc"></div>
+    <hr class="section-divider">
+    <div class="section" id="sectionDev"></div>
+    <hr class="section-divider">
+    <div class="section" id="sectionUsage"></div>
+    <hr class="section-divider">
+    <div class="section" id="sectionTable"></div>
+  </div>
+</div>
+
+<div class="tab-content" id="tab-deployments">
+  <div class="container">
+    <div class="section">
+      <div class="section-title">Deployments</div>
+      <div class="stat-row" id="deployStats"></div>
+      <div class="card">
+        <div class="usage-chart-header">
+          <div class="usage-chart-title">Deployments Over Time</div>
+          <div style="display:flex;gap:4px">
+            <button class="usage-badge deploy-period-btn active" data-period="day">Day</button>
+            <button class="usage-badge deploy-period-btn" data-period="week">Week</button>
+            <button class="usage-badge deploy-period-btn" data-period="month">Month</button>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:360px"><canvas id="chartDeploys"></canvas></div>
+      </div>
+    </div>
+    <hr class="section-divider">
+    <div class="section" id="sectionDeployDevs"></div>
+    <hr class="section-divider">
+    <div class="section" id="sectionDeployTable"></div>
+  </div>
 </div>
 
 <!-- Chat panel -->
@@ -350,6 +415,7 @@
 <button class="chat-fab" id="chatFab" title="AI Insights">&#9733;</button>
 
 <script src="data/cursor_usage.js"></script>
+<script src="data/guardian_deploys.js"></script>
 <script>
 (function() {
   // ===== UTILITIES =====
@@ -518,14 +584,26 @@
 
   // populate developer dropdown
   const devSelect = document.getElementById('fDev');
-  Object.entries(emailToName)
+  const aiDevOptions = Object.entries(emailToName)
     .sort((a, b) => a[1].localeCompare(b[1]))
-    .forEach(([email, name]) => {
+    .map(([email, name]) => ({ value: email, label: name }));
+  const deployOwners = [...new Set(DEPLOYS.map(d => d.pull_request_owner))].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+  const deployDevOptions = deployOwners.map(o => ({ value: o, label: o }));
+
+  function populateDevDropdown(options, placeholder) {
+    devSelect.innerHTML = '';
+    const def = document.createElement('option');
+    def.value = '';
+    def.textContent = placeholder;
+    devSelect.appendChild(def);
+    options.forEach(o => {
       const opt = document.createElement('option');
-      opt.value = email;
-      opt.textContent = name;
+      opt.value = o.value;
+      opt.textContent = o.label;
       devSelect.appendChild(opt);
     });
+  }
+  populateDevDropdown(aiDevOptions, 'All Developers');
 
   document.getElementById('fStart').value = globalStart;
   document.getElementById('fEnd').value = globalEnd;
@@ -1024,15 +1102,20 @@
   }
 
   // ===== FILTER HANDLERS =====
-  document.getElementById('fStart').addEventListener('change', e => { filterStart = e.target.value || globalStart; renderAll(); });
-  document.getElementById('fEnd').addEventListener('change', e => { filterEnd = e.target.value || globalEnd; renderAll(); });
-  document.getElementById('fDev').addEventListener('change', e => { filterDev = e.target.value; renderAll(); });
+  function activeTab() { return document.querySelector('.tab-btn.active').dataset.tab; }
+  function applyFilters() {
+    if (activeTab() === 'ai-first') renderAll();
+    else renderDeploys(deployPeriod);
+  }
+  document.getElementById('fStart').addEventListener('change', e => { filterStart = e.target.value || globalStart; applyFilters(); });
+  document.getElementById('fEnd').addEventListener('change', e => { filterEnd = e.target.value || globalEnd; applyFilters(); });
+  document.getElementById('fDev').addEventListener('change', e => { filterDev = e.target.value; applyFilters(); });
   document.getElementById('fReset').addEventListener('click', () => {
     filterStart = globalStart; filterEnd = globalEnd; filterDev = '';
     document.getElementById('fStart').value = globalStart;
     document.getElementById('fEnd').value = globalEnd;
     document.getElementById('fDev').value = '';
-    renderAll();
+    applyFilters();
   });
 
   // ===== INITIAL RENDER =====
@@ -1150,6 +1233,407 @@
   chatInput.addEventListener('input', () => {
     chatInput.style.height = 'auto';
     chatInput.style.height = Math.min(chatInput.scrollHeight, 80) + 'px';
+  });
+
+  // ===== TAB NAVIGATION =====
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      tabBtns.forEach(b => b.classList.toggle('active', b === btn));
+      tabContents.forEach(tc => tc.classList.toggle('active', tc.id === 'tab-' + target));
+      filterDev = '';
+      if (target === 'deployments') {
+        populateDevDropdown(deployDevOptions, 'All Contributors');
+        renderDeploys(deployPeriod);
+      } else {
+        populateDevDropdown(aiDevOptions, 'All Developers');
+        renderAll();
+      }
+    });
+  });
+
+  // ===== DEPLOYMENTS TAB =====
+  let deployPeriod = 'day';
+
+  function getWeekStart(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(d.setDate(diff));
+    return monday.toISOString().slice(0, 10);
+  }
+
+  function filterDeploys() {
+    let filtered = DEPLOYS;
+    if (filterStart) filtered = filtered.filter(d => (d.merge_date || d.inserted_at).slice(0, 10) >= filterStart);
+    if (filterEnd) filtered = filtered.filter(d => (d.merge_date || d.inserted_at).slice(0, 10) <= filterEnd);
+    if (filterDev) filtered = filtered.filter(d => d.pull_request_owner === filterDev);
+    return filtered;
+  }
+
+  function aggregateDeploysByPeriod(deploys, period) {
+    const buckets = {};
+    deploys.forEach(dep => {
+      const raw = dep.merge_date || dep.inserted_at;
+      if (!raw) return;
+      const dateStr = raw.slice(0, 10);
+      let key;
+      if (period === 'day') key = dateStr;
+      else if (period === 'week') key = getWeekStart(dateStr);
+      else key = dateStr.slice(0, 7);
+
+      if (!buckets[key]) buckets[key] = { total: 0 };
+      buckets[key].total++;
+    });
+    return Object.keys(buckets).sort().map(k => ({ period: k, ...buckets[k] }));
+  }
+
+  function aggregateDeployLeaderboard(deploys) {
+    const devs = {};
+    deploys.forEach(dep => {
+      const owner = dep.pull_request_owner;
+      if (!devs[owner]) devs[owner] = { name: owner, deploys: 0, repos: new Set(), months: {}, repoCounts: {} };
+      const d = devs[owner];
+      d.deploys++;
+      d.repos.add(dep.repository_name);
+      d.repoCounts[dep.repository_name] = (d.repoCounts[dep.repository_name] || 0) + 1;
+      const raw = dep.merge_date || dep.inserted_at;
+      if (raw) {
+        const month = raw.slice(0, 7);
+        d.months[month] = (d.months[month] || 0) + 1;
+      }
+    });
+    const result = Object.values(devs).map(d => ({
+      name: d.name,
+      deploys: d.deploys,
+      repoCount: d.repos.size,
+      months: Object.keys(d.months).sort().map(m => ({ month: m, count: d.months[m] })),
+      repoBreakdown: Object.entries(d.repoCounts).sort((a, b) => b[1] - a[1]).map(([repo, count]) => ({ repo, count })),
+    }));
+    result.sort((a, b) => b.deploys - a.deploys);
+    result.forEach((d, i) => d.rank = i + 1);
+    return result;
+  }
+
+  function renderDeploys(period) {
+    deployPeriod = period;
+    const filtered = filterDeploys();
+    const agg = aggregateDeploysByPeriod(filtered, period);
+    const totalDeploys = filtered.length;
+    const repos = new Set(filtered.map(d => d.repository_name));
+    const owners = new Set(filtered.map(d => d.pull_request_owner));
+    const avgPerPeriod = agg.length > 0 ? Math.round(totalDeploys / agg.length) : 0;
+    const peakPeriod = agg.length > 0 ? Math.max(...agg.map(a => a.total)) : 0;
+
+    document.getElementById('deployStats').innerHTML = `
+      <div class="card card-accent">
+        <div class="stat-label">Total Deployments</div>
+        <div class="stat-value">${fmtNum(totalDeploys)}</div>
+        <div class="stat-sub">${repos.size} repositories</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Contributors</div>
+        <div class="stat-value stat-accent">${owners.size}</div>
+        <div class="stat-sub">unique PR owners</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Avg per ${period}</div>
+        <div class="stat-value">${avgPerPeriod}</div>
+        <div class="stat-sub">deployments</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Peak ${period}</div>
+        <div class="stat-value stat-accent">${peakPeriod}</div>
+        <div class="stat-sub">max in a single ${period}</div>
+      </div>`;
+
+    const labels = agg.map(a => a.period);
+    const timeUnit = period === 'day' ? 'week' : period === 'week' ? 'month' : 'quarter';
+
+    makeChart('chartDeploys', {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Deployments',
+            data: agg.map(a => a.total),
+            backgroundColor: 'rgba(59,63,230,0.6)',
+            borderColor: BLUE,
+            borderWidth: 1,
+            borderRadius: 3,
+          },
+          {
+            label: 'Trend',
+            data: linReg(agg.map(a => a.total)),
+            type: 'line',
+            borderColor: PINK,
+            borderWidth: 2,
+            borderDash: [6, 4],
+            fill: false,
+            pointRadius: 0,
+            pointHitRadius: 0,
+            tension: 0,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 14 } },
+          tooltip: {
+            ...tooltipOpts,
+            callbacks: {
+              title: ctx => {
+                const v = ctx[0].label;
+                if (period === 'month') return v;
+                if (period === 'week') return 'Week of ' + v;
+                return fmtDate(v);
+              }
+            }
+          },
+        },
+        scales: {
+          x: {
+            type: 'time',
+            time: { unit: timeUnit, tooltipFormat: period === 'month' ? 'MMM yyyy' : 'MMM d, yyyy' },
+            ticks: { color: TICK, font: { family: 'Inter', size: 10 }, maxRotation: 0 },
+            grid: { color: GRID, drawBorder: false },
+          },
+          y: scaleY(),
+        }
+      }
+    });
+
+    const lb = aggregateDeployLeaderboard(filtered);
+    renderDeployDevs(lb);
+    renderDeployTable(lb);
+  }
+
+  function renderDeployDevs(lb) {
+    const topDev = lb[0] || {};
+    const maxDeploys = lb.length ? lb[0].deploys : 1;
+    const avgDeploys = lb.length ? Math.round(lb.reduce((a, d) => a + d.deploys, 0) / lb.length) : 0;
+    const totalRepos = new Set(lb.flatMap(d => [])).size;
+
+    let lbRows = '';
+    lb.forEach(u => {
+      const barW = Math.max(2, u.deploys / maxDeploys * 100);
+      const isTop = u.rank <= 3;
+      lbRows += `<div class="dev-stat-row">
+        <div class="dev-stat-rank ${isTop ? 'top' : ''}">${u.rank}</div>
+        <div style="flex:1;min-width:0">
+          <div class="dev-stat-name">${u.name}</div>
+          <div class="dev-stat-model">${u.repoCount} repo${u.repoCount !== 1 ? 's' : ''}</div>
+        </div>
+        <div class="dev-stat-bar-wrap"><div class="dev-stat-bar-bg"><div class="dev-stat-bar-fill" style="width:${barW}%"></div></div></div>
+        <div class="dev-stat-val">${u.deploys}</div>
+      </div>`;
+    });
+
+    document.getElementById('sectionDeployDevs').innerHTML = `
+      <div class="section-title">By Developer</div>
+      <div class="stat-row">
+        <div class="card card-accent">
+          <div class="stat-label">Contributors</div>
+          <div class="stat-value">${lb.length}</div>
+          <div class="stat-sub">Avg: ${avgDeploys} deploys/dev</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">Top Contributor</div>
+          <div class="stat-value" style="font-size:22px;letter-spacing:0">${topDev.name || '—'}</div>
+          <div class="stat-sub">${topDev.deploys || 0} deployments &middot; ${topDev.repoCount || 0} repos</div>
+        </div>
+      </div>
+      <div class="card" style="overflow-y:auto;max-height:480px">
+        <div class="usage-chart-header" style="position:sticky;top:0;background:var(--white);padding-bottom:8px;z-index:1">
+          <div class="usage-chart-title">Leaderboard</div>
+          <div class="usage-badge">Deployments</div>
+        </div>
+        ${lbRows}
+      </div>`;
+  }
+
+  const DEPLOY_COLS = [
+    { key: 'name', label: 'Developer', fmt: v => v, cls: '' },
+    { key: 'deploys', label: 'Deployments', fmt: v => v.toLocaleString(), cls: 'col-ai' },
+    { key: 'repoCount', label: 'Repositories', fmt: v => v, cls: '' },
+  ];
+
+  let dSortCol = 'deploys', dSortDir = 'desc', dSearchTerm = '', dSelectedDev = null;
+
+  function renderDeployTable(lb) {
+    const el = document.getElementById('sectionDeployTable');
+    el.innerHTML = `
+      <div class="section-title">Developer Detail</div>
+      <div class="card" style="padding:20px 24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+          <div class="usage-chart-title">All Contributors <span id="dTblCount" style="font-weight:400;color:var(--gray-500);font-size:13px">(${lb.length})</span></div>
+          <input type="text" class="tbl-search" placeholder="Search developer..." id="dTblSearch">
+        </div>
+        <div class="tbl-wrap">
+          <table class="sort-table" id="dTable"><thead id="dTblHead"></thead><tbody id="dTblBody"></tbody></table>
+        </div>
+        <div class="dev-detail" id="dDevDetail">
+          <div class="dev-detail-header">
+            <div class="dev-detail-name" id="dDevDetailName"></div>
+            <button class="dev-detail-close" id="dDevDetailClose">Close</button>
+          </div>
+          <div class="dev-detail-stats" id="dDevDetailStats"></div>
+          <div class="two-col">
+            <div class="card" style="padding:16px 20px">
+              <div class="usage-chart-header">
+                <div class="usage-chart-title">Deployments</div>
+                <div class="usage-badge">By Month</div>
+              </div>
+              <div class="chart-wrap" style="height:260px"><canvas id="dDevChart"></canvas></div>
+            </div>
+            <div class="card" style="padding:16px 20px">
+              <div class="usage-chart-header">
+                <div class="usage-chart-title">Repositories</div>
+                <div class="usage-badge">By Repo</div>
+              </div>
+              <div class="chart-wrap" id="dDevRepoChartWrap" style="height:260px"><canvas id="dDevRepoChart"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    dSelectedDev = null;
+
+    function showDDevDetail(name) {
+      const dev = lb.find(d => d.name === name);
+      if (!dev || !dev.months.length) return;
+      dSelectedDev = name;
+      document.getElementById('dDevDetail').classList.add('open');
+      document.getElementById('dDevDetail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      document.getElementById('dDevDetailName').textContent = name;
+
+      document.getElementById('dDevDetailStats').innerHTML = `
+        <div><div class="dev-detail-stat-label">Total Deployments</div><div class="dev-detail-stat-val" style="color:var(--blue)">${dev.deploys}</div></div>
+        <div><div class="dev-detail-stat-label">Repositories</div><div class="dev-detail-stat-val">${dev.repoCount}</div></div>
+        <div><div class="dev-detail-stat-label">Active Months</div><div class="dev-detail-stat-val">${dev.months.length}</div></div>
+        <div><div class="dev-detail-stat-label">Avg / Month</div><div class="dev-detail-stat-val">${(dev.deploys / dev.months.length).toFixed(1)}</div></div>`;
+
+      makeChart('dDevChart', {
+        type: 'bar',
+        data: {
+          labels: dev.months.map(m => m.month),
+          datasets: [{
+            label: 'Deployments',
+            data: dev.months.map(m => m.count),
+            backgroundColor: 'rgba(59,63,230,0.6)',
+            borderColor: BLUE,
+            borderWidth: 1,
+            borderRadius: 3,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 14 } }, tooltip: tooltipOpts },
+          scales: {
+            x: { ticks: { color: TICK, font: { family: 'Inter', size: 10 } }, grid: { color: GRID, drawBorder: false } },
+            y: scaleY()
+          }
+        }
+      });
+
+      const repoH = Math.max(260, dev.repoBreakdown.length * 28 + 40);
+      document.getElementById('dDevRepoChartWrap').style.height = repoH + 'px';
+
+      makeChart('dDevRepoChart', {
+        type: 'bar',
+        data: {
+          labels: dev.repoBreakdown.map(r => r.repo),
+          datasets: [{
+            label: 'Deployments',
+            data: dev.repoBreakdown.map(r => r.count),
+            backgroundColor: 'rgba(59,63,230,0.6)',
+            borderColor: BLUE,
+            borderWidth: 1,
+            borderRadius: 3,
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: tooltipOpts,
+          },
+          scales: {
+            x: { ticks: { color: TICK, font: { family: 'Inter', size: 10 }, precision: 0 }, grid: { color: GRID, drawBorder: false }, beginAtZero: true },
+            y: { ticks: { color: TICK, font: { family: 'Inter', size: 10 } }, grid: { display: false } },
+          }
+        }
+      });
+
+      document.querySelectorAll('#dTable tbody tr').forEach(tr => {
+        tr.classList.toggle('active-row', tr.dataset.dev === name);
+      });
+    }
+
+    function hideDDevDetail() {
+      dSelectedDev = null;
+      document.getElementById('dDevDetail').classList.remove('open');
+      if (charts.dDevChart) { charts.dDevChart.destroy(); delete charts.dDevChart; }
+      if (charts.dDevRepoChart) { charts.dDevRepoChart.destroy(); delete charts.dDevRepoChart; }
+      document.querySelectorAll('#dTable tbody tr').forEach(tr => tr.classList.remove('active-row'));
+    }
+
+    document.getElementById('dDevDetailClose').addEventListener('click', hideDDevDetail);
+
+    function updateDTable() {
+      const filtered = dSearchTerm ? lb.filter(r => r.name.toLowerCase().includes(dSearchTerm)) : lb;
+      const sorted = [...filtered].sort((a, b) => {
+        const av = a[dSortCol], bv = b[dSortCol];
+        if (typeof av === 'string') return dSortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+        return dSortDir === 'asc' ? av - bv : bv - av;
+      });
+      document.getElementById('dTblCount').textContent = `(${sorted.length})`;
+      document.getElementById('dTblHead').innerHTML = '<tr>' + DEPLOY_COLS.map(c => {
+        const active = dSortCol === c.key;
+        const arrow = active ? (dSortDir === 'asc' ? '&#9650;' : '&#9660;') : '';
+        return `<th class="${active ? 'sorted-' + dSortDir : ''}" data-col="${c.key}">${c.label}<span class="sort-arrow">${arrow}</span></th>`;
+      }).join('') + '</tr>';
+      document.getElementById('dTblBody').innerHTML = sorted.map(r =>
+        `<tr data-dev="${r.name}" class="${dSelectedDev === r.name ? 'active-row' : ''}">` +
+        DEPLOY_COLS.map(c => `<td class="${c.cls}">${c.fmt(r[c.key])}</td>`).join('') + '</tr>'
+      ).join('');
+      document.querySelectorAll('#dTable th').forEach(th => {
+        th.addEventListener('click', () => {
+          const col = th.dataset.col;
+          if (dSortCol === col) dSortDir = dSortDir === 'asc' ? 'desc' : 'asc';
+          else { dSortCol = col; dSortDir = 'desc'; }
+          updateDTable();
+        });
+      });
+      document.querySelectorAll('#dTable tbody tr').forEach(tr => {
+        tr.addEventListener('click', () => {
+          const name = tr.dataset.dev;
+          if (dSelectedDev === name) hideDDevDetail(); else showDDevDetail(name);
+        });
+      });
+    }
+
+    document.getElementById('dTblSearch').addEventListener('input', e => {
+      dSearchTerm = e.target.value.toLowerCase();
+      updateDTable();
+    });
+    updateDTable();
+  }
+
+  document.querySelectorAll('.deploy-period-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.deploy-period-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderDeploys(btn.dataset.period);
+    });
   });
 })();
 </script>
