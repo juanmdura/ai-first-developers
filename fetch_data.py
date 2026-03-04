@@ -251,7 +251,9 @@ def main():
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     js_path = os.path.join(script_dir, "data.js")
-    csv_path = os.path.join(script_dir, "api_usage_data.csv")
+    data_dir = os.path.join(script_dir, "data")
+    os.makedirs(data_dir, exist_ok=True)
+    csv_path = os.path.join(data_dir, "api_usage_data.csv")
 
     write_data_js(daily_data, leaderboard, js_path)
     print(f"Wrote {js_path}")
