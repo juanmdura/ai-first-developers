@@ -148,11 +148,10 @@
 
     .stat-row {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 16px;
       margin-bottom: 16px;
     }
-    @media (max-width: 900px) { .stat-row { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 520px) { .stat-row { grid-template-columns: 1fr; } }
 
     .stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-500); margin-bottom: 8px; }
@@ -190,11 +189,11 @@
       font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
       background: var(--gray-100); color: var(--blue); text-transform: uppercase; letter-spacing: 0.5px;
     }
-    .deploy-period-btn {
+    .deploy-period-btn, .lt-period-btn, .zen-period-btn {
       cursor: pointer; border: 1px solid var(--gray-200); transition: all .15s;
     }
-    .deploy-period-btn:hover { background: var(--gray-200); }
-    .deploy-period-btn.active { background: var(--blue); color: var(--white); border-color: var(--blue); }
+    .deploy-period-btn:hover, .lt-period-btn:hover, .zen-period-btn:hover { background: var(--gray-200); }
+    .deploy-period-btn.active, .lt-period-btn.active, .zen-period-btn.active { background: var(--blue); color: var(--white); border-color: var(--blue); }
 
     .tbl-wrap { overflow-x: auto; }
     .sort-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; font-family: 'Inter', sans-serif; }
@@ -357,8 +356,10 @@
 </nav>
 
 <div class="tab-bar">
-  <button class="tab-btn active" data-tab="ai-first">AI-first Developers</button>
+  <button class="tab-btn active" data-tab="ai-first">AI Code Assistants</button>
   <button class="tab-btn" data-tab="deployments">Deployments</button>
+  <button class="tab-btn" data-tab="leadtime">Lead Time</button>
+  <button class="tab-btn" data-tab="zenith">Zenith</button>
 </div>
 
 <div class="tab-content active" id="tab-ai-first">
@@ -380,7 +381,7 @@
       <div class="stat-row" id="deployStats"></div>
       <div class="card">
         <div class="usage-chart-header">
-          <div class="usage-chart-title">Deployments Over Time</div>
+          <div class="usage-chart-title">Deployments</div>
           <div style="display:flex;gap:4px">
             <button class="usage-badge deploy-period-btn active" data-period="day">Day</button>
             <button class="usage-badge deploy-period-btn" data-period="week">Week</button>
@@ -394,6 +395,60 @@
     <div class="section" id="sectionDeployDevs"></div>
     <hr class="section-divider">
     <div class="section" id="sectionDeployTable"></div>
+  </div>
+</div>
+
+<div class="tab-content" id="tab-leadtime">
+  <div class="container">
+    <div class="section">
+      <div class="section-title">PR Lead Time</div>
+      <div class="stat-row" id="ltStats"></div>
+      <div class="card">
+        <div class="usage-chart-header">
+          <div class="usage-chart-title">Lead Time Distribution</div>
+          <div class="usage-badge">Hours</div>
+        </div>
+        <div class="chart-wrap" style="height:360px"><canvas id="chartLtDist"></canvas></div>
+      </div>
+    </div>
+    <hr class="section-divider">
+    <div class="section">
+      <div class="card">
+        <div class="usage-chart-header">
+          <div class="usage-chart-title">Lead Time</div>
+          <div style="display:flex;gap:4px">
+            <button class="usage-badge lt-period-btn" data-period="day">Day</button>
+            <button class="usage-badge lt-period-btn active" data-period="week">Week</button>
+            <button class="usage-badge lt-period-btn" data-period="month">Month</button>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:360px"><canvas id="chartLtTime"></canvas></div>
+      </div>
+    </div>
+    <hr class="section-divider">
+    <div class="section" id="sectionLtDevs"></div>
+  </div>
+</div>
+
+<div class="tab-content" id="tab-zenith">
+  <div class="container">
+    <div class="section">
+      <div class="section-title">Zenith Adoption</div>
+      <div class="stat-row" id="zenithStats"></div>
+      <div class="card">
+        <div class="usage-chart-header">
+          <div class="usage-chart-title">Zenith vs Legacy</div>
+          <div style="display:flex;gap:4px">
+            <button class="usage-badge zen-period-btn" data-period="day">Day</button>
+            <button class="usage-badge zen-period-btn active" data-period="week">Week</button>
+            <button class="usage-badge zen-period-btn" data-period="month">Month</button>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:360px"><canvas id="chartZenith"></canvas></div>
+      </div>
+    </div>
+    <hr class="section-divider">
+    <div class="section" id="sectionZenithDevs"></div>
   </div>
 </div>
 
@@ -577,8 +632,9 @@
   });
   const globalStart = allDays[0];
   const globalEnd = allDays[allDays.length - 1];
+  const defaultStart = '2025-09-01';
 
-  let filterStart = globalStart;
+  let filterStart = defaultStart;
   let filterEnd = globalEnd;
   let filterDev = '';
 
@@ -605,7 +661,7 @@
   }
   populateDevDropdown(aiDevOptions, 'All Developers');
 
-  document.getElementById('fStart').value = globalStart;
+  document.getElementById('fStart').value = defaultStart;
   document.getElementById('fEnd').value = globalEnd;
 
   // ===== RENDER FUNCTIONS =====
@@ -833,7 +889,7 @@
       <div class="two-col">
         <div class="card">
           <div class="usage-chart-header">
-            <div class="usage-chart-title">Active Users Over Time</div>
+            <div class="usage-chart-title">Active Users</div>
             <div class="usage-badge">Daily</div>
           </div>
           <div class="chart-wrap" style="height:340px"><canvas id="chartUsers"></canvas></div>
@@ -1104,15 +1160,18 @@
   // ===== FILTER HANDLERS =====
   function activeTab() { return document.querySelector('.tab-btn.active').dataset.tab; }
   function applyFilters() {
-    if (activeTab() === 'ai-first') renderAll();
-    else renderDeploys(deployPeriod);
+    const tab = activeTab();
+    if (tab === 'ai-first') renderAll();
+    else if (tab === 'deployments') renderDeploys(deployPeriod);
+    else if (tab === 'leadtime') renderLeadTime(ltPeriod);
+    else if (tab === 'zenith') renderZenith(zenPeriod);
   }
   document.getElementById('fStart').addEventListener('change', e => { filterStart = e.target.value || globalStart; applyFilters(); });
   document.getElementById('fEnd').addEventListener('change', e => { filterEnd = e.target.value || globalEnd; applyFilters(); });
   document.getElementById('fDev').addEventListener('change', e => { filterDev = e.target.value; applyFilters(); });
   document.getElementById('fReset').addEventListener('click', () => {
-    filterStart = globalStart; filterEnd = globalEnd; filterDev = '';
-    document.getElementById('fStart').value = globalStart;
+    filterStart = defaultStart; filterEnd = globalEnd; filterDev = '';
+    document.getElementById('fStart').value = defaultStart;
     document.getElementById('fEnd').value = globalEnd;
     document.getElementById('fDev').value = '';
     applyFilters();
@@ -1245,9 +1304,11 @@
       tabBtns.forEach(b => b.classList.toggle('active', b === btn));
       tabContents.forEach(tc => tc.classList.toggle('active', tc.id === 'tab-' + target));
       filterDev = '';
-      if (target === 'deployments') {
+      if (target === 'deployments' || target === 'leadtime' || target === 'zenith') {
         populateDevDropdown(deployDevOptions, 'All Contributors');
-        renderDeploys(deployPeriod);
+        if (target === 'deployments') renderDeploys(deployPeriod);
+        else if (target === 'leadtime') renderLeadTime(ltPeriod);
+        else renderZenith(zenPeriod);
       } else {
         populateDevDropdown(aiDevOptions, 'All Developers');
         renderAll();
@@ -1264,6 +1325,13 @@
     const diff = d.getDate() - day + (day === 0 ? -6 : 1);
     const monday = new Date(d.setDate(diff));
     return monday.toISOString().slice(0, 10);
+  }
+
+  function currentPeriodKey(period) {
+    const today = new Date().toISOString().slice(0, 10);
+    if (period === 'day') return today;
+    if (period === 'week') return getWeekStart(today);
+    return today.slice(0, 7);
   }
 
   function filterDeploys() {
@@ -1321,7 +1389,8 @@
   function renderDeploys(period) {
     deployPeriod = period;
     const filtered = filterDeploys();
-    const agg = aggregateDeploysByPeriod(filtered, period);
+    const curKey = currentPeriodKey(period);
+    const agg = aggregateDeploysByPeriod(filtered, period).filter(a => a.period < curKey);
     const totalDeploys = filtered.length;
     const repos = new Set(filtered.map(d => d.repository_name));
     const owners = new Set(filtered.map(d => d.pull_request_owner));
@@ -1351,7 +1420,7 @@
       </div>`;
 
     const labels = agg.map(a => a.period);
-    const timeUnit = period === 'day' ? 'week' : period === 'week' ? 'month' : 'quarter';
+    const timeUnit = period === 'day' ? 'week' : 'month';
 
     makeChart('chartDeploys', {
       type: 'bar',
@@ -1633,6 +1702,707 @@
       document.querySelectorAll('.deploy-period-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       renderDeploys(btn.dataset.period);
+    });
+  });
+
+  // ===== LEAD TIME TAB =====
+  let ltPeriod = 'week';
+
+  function calcLeadTimeHours(dep) {
+    if (!dep.merge_date || !dep.first_commit_date) return null;
+    const merge = new Date(dep.merge_date.replace(' ', 'T'));
+    const first = new Date(dep.first_commit_date.replace(' ', 'T'));
+    const diffMs = merge - first;
+    if (diffMs < 0) return null;
+    return diffMs / (1000 * 60 * 60);
+  }
+
+  function fmtLeadTime(hours) {
+    if (hours < 1) return Math.round(hours * 60) + 'm';
+    if (hours < 24) return hours.toFixed(1) + 'h';
+    const days = hours / 24;
+    return days.toFixed(1) + 'd';
+  }
+
+  function filterDeploysForLt() {
+    let filtered = DEPLOYS.filter(d => d.merge_date && d.first_commit_date);
+    if (filterStart) filtered = filtered.filter(d => d.merge_date.slice(0, 10) >= filterStart);
+    if (filterEnd) filtered = filtered.filter(d => d.merge_date.slice(0, 10) <= filterEnd);
+    if (filterDev) filtered = filtered.filter(d => d.pull_request_owner === filterDev);
+    return filtered;
+  }
+
+  function renderLeadTime(period) {
+    ltPeriod = period;
+    const filtered = filterDeploysForLt();
+    const withLt = filtered.map(d => ({ ...d, ltHours: calcLeadTimeHours(d) })).filter(d => d.ltHours !== null);
+
+    if (withLt.length === 0) {
+      ['ltStats', 'sectionLtDevs'].forEach(id =>
+        document.getElementById(id).innerHTML = '<div class="card" style="text-align:center;padding:40px;color:var(--gray-500)">No data for selected filters</div>'
+      );
+      return;
+    }
+
+    const hours = withLt.map(d => d.ltHours).sort((a, b) => a - b);
+    const median = hours.length % 2 === 0
+      ? (hours[hours.length / 2 - 1] + hours[hours.length / 2]) / 2
+      : hours[Math.floor(hours.length / 2)];
+    const p75 = hours[Math.floor(hours.length * 0.75)];
+    const p90 = hours[Math.floor(hours.length * 0.9)];
+    const avg = hours.reduce((a, b) => a + b, 0) / hours.length;
+    const maxLt = hours[hours.length - 1];
+
+    document.getElementById('ltStats').innerHTML = `
+      <div class="card card-accent">
+        <div class="stat-label">Total PRs</div>
+        <div class="stat-value stat-accent">${withLt.length}</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Median</div>
+        <div class="stat-value">${fmtLeadTime(median)}</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">P75</div>
+        <div class="stat-value">${fmtLeadTime(p75)}</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">P90</div>
+        <div class="stat-value">${fmtLeadTime(p90)}</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Average</div>
+        <div class="stat-value">${fmtLeadTime(avg)}</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Max</div>
+        <div class="stat-value">${fmtLeadTime(maxLt)}</div>
+      </div>`;
+
+    // Distribution histogram (buckets in hours)
+    const bucketEdges = [0, 1, 2, 4, 8, 12, 24, 48, 72, 120, 168, Infinity];
+    const bucketLabels = ['<1h', '1-2h', '2-4h', '4-8h', '8-12h', '12-24h', '1-2d', '2-3d', '3-5d', '5-7d', '>7d'];
+    const bucketCounts = new Array(bucketLabels.length).fill(0);
+    hours.forEach(h => {
+      for (let i = 0; i < bucketEdges.length - 1; i++) {
+        if (h >= bucketEdges[i] && h < bucketEdges[i + 1]) { bucketCounts[i]++; break; }
+      }
+    });
+
+    makeChart('chartLtDist', {
+      type: 'bar',
+      data: {
+        labels: bucketLabels,
+        datasets: [{
+          label: 'PRs',
+          data: bucketCounts,
+          backgroundColor: bucketLabels.map((_, i) => {
+            const ratio = i / (bucketLabels.length - 1);
+            return ratio < 0.4 ? 'rgba(59,63,230,0.6)' : ratio < 0.7 ? 'rgba(139,142,245,0.6)' : 'rgba(232,78,163,0.5)';
+          }),
+          borderColor: bucketLabels.map((_, i) => {
+            const ratio = i / (bucketLabels.length - 1);
+            return ratio < 0.4 ? BLUE : ratio < 0.7 ? '#8B8EF5' : PINK;
+          }),
+          borderWidth: 1,
+          borderRadius: 3,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { ...tooltipOpts, callbacks: { label: ctx => `${ctx.parsed.y} PRs` } },
+        },
+        scales: {
+          x: { ticks: { color: TICK, font: { family: 'Inter', size: 10 } }, grid: { display: false } },
+          y: scaleY({ title: { display: true, text: 'PRs', color: TICK, font: { family: 'Inter', size: 10 } } }),
+        }
+      }
+    });
+
+    // Lead time over time
+    const timeBuckets = {};
+    withLt.forEach(d => {
+      const dateStr = d.merge_date.slice(0, 10);
+      let key;
+      if (period === 'day') key = dateStr;
+      else if (period === 'week') key = getWeekStart(dateStr);
+      else key = dateStr.slice(0, 7);
+      if (!timeBuckets[key]) timeBuckets[key] = [];
+      timeBuckets[key].push(d.ltHours);
+    });
+    const ltCurKey = currentPeriodKey(period);
+    const timeKeys = Object.keys(timeBuckets).sort().filter(k => k < ltCurKey);
+    const medianByPeriod = timeKeys.map(k => {
+      const s = timeBuckets[k].sort((a, b) => a - b);
+      return s.length % 2 === 0 ? (s[s.length / 2 - 1] + s[s.length / 2]) / 2 : s[Math.floor(s.length / 2)];
+    });
+    const p75ByPeriod = timeKeys.map(k => {
+      const s = timeBuckets[k].sort((a, b) => a - b);
+      return s[Math.floor(s.length * 0.75)];
+    });
+    const p90ByPeriod = timeKeys.map(k => {
+      const s = timeBuckets[k].sort((a, b) => a - b);
+      return s[Math.floor(s.length * 0.9)];
+    });
+    const avgByPeriod = timeKeys.map(k => timeBuckets[k].reduce((a, b) => a + b, 0) / timeBuckets[k].length);
+    const volumeByPeriod = timeKeys.map(k => timeBuckets[k].length);
+    const timeUnit = period === 'day' ? 'week' : 'month';
+
+    makeChart('chartLtTime', {
+      type: 'line',
+      data: {
+        labels: timeKeys,
+        datasets: [
+          { label: 'PRs', data: volumeByPeriod, type: 'bar', backgroundColor: 'rgba(200,203,224,0.35)', borderColor: 'rgba(200,203,224,0.5)', borderWidth: 1, borderRadius: 2, yAxisID: 'yVol', order: 6 },
+          { label: 'Median', data: medianByPeriod, borderColor: BLUE, backgroundColor: BLUE_A, borderWidth: 2, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8, yAxisID: 'y', order: 2 },
+          { label: 'P75', data: p75ByPeriod, borderColor: '#8B8EF5', borderWidth: 1.5, fill: false, tension: 0.3, pointRadius: 0, pointHitRadius: 8, yAxisID: 'y', order: 3 },
+          { label: 'P90', data: p90ByPeriod, borderColor: PINK, borderWidth: 1.5, fill: false, tension: 0.3, pointRadius: 0, pointHitRadius: 8, yAxisID: 'y', order: 4 },
+          { label: 'Avg', data: avgByPeriod, borderColor: '#7B7FA3', borderWidth: 1.5, borderDash: [4, 3], fill: false, tension: 0.3, pointRadius: 0, pointHitRadius: 8, yAxisID: 'y', order: 5 },
+          { label: 'Median Trend', data: linReg(medianByPeriod), borderColor: BLUE, borderWidth: 2, borderDash: [6, 4], fill: false, pointRadius: 0, pointHitRadius: 0, tension: 0, yAxisID: 'y', order: 1 },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 14 } },
+          tooltip: { ...tooltipOpts, callbacks: { label: ctx => ctx.dataset.yAxisID === 'yVol' ? `PRs: ${ctx.parsed.y}` : `${ctx.dataset.label}: ${fmtLeadTime(ctx.parsed.y)}` } },
+        },
+        scales: {
+          x: {
+            type: 'time',
+            time: { unit: timeUnit, tooltipFormat: period === 'month' ? 'MMM yyyy' : 'MMM d, yyyy' },
+            ticks: { color: TICK, font: { family: 'Inter', size: 10 }, maxRotation: 0 },
+            grid: { color: GRID, drawBorder: false },
+          },
+          y: scaleY({ position: 'left', title: { display: true, text: 'Hours', color: TICK, font: { family: 'Inter', size: 10 } } }),
+          yVol: { position: 'right', beginAtZero: true, ticks: { color: 'rgba(200,203,224,0.8)', font: { family: 'Inter', size: 10 }, precision: 0 }, grid: { drawOnChartArea: false }, title: { display: true, text: 'PRs', color: 'rgba(200,203,224,0.8)', font: { family: 'Inter', size: 10 } } },
+        }
+      }
+    });
+
+    // Per-developer lead time
+    const devBuckets = {};
+    withLt.forEach(d => {
+      const owner = d.pull_request_owner;
+      if (!devBuckets[owner]) devBuckets[owner] = [];
+      devBuckets[owner].push(d.ltHours);
+    });
+    const devLt = Object.entries(devBuckets).map(([name, hrs]) => {
+      hrs.sort((a, b) => a - b);
+      const med = hrs.length % 2 === 0 ? (hrs[hrs.length / 2 - 1] + hrs[hrs.length / 2]) / 2 : hrs[Math.floor(hrs.length / 2)];
+      return {
+        name, prs: hrs.length, median: med,
+        p75: hrs[Math.floor(hrs.length * 0.75)],
+        p90: hrs[Math.floor(hrs.length * 0.9)],
+        avg: hrs.reduce((a, b) => a + b, 0) / hrs.length,
+        max: hrs[hrs.length - 1],
+      };
+    }).sort((a, b) => a.median - b.median);
+
+    renderLtDevTable(devLt, withLt);
+  }
+
+  const LT_COLS = [
+    { key: 'name', label: 'Developer', fmt: v => v, cls: '' },
+    { key: 'prs', label: 'PRs', fmt: v => v, cls: '' },
+    { key: 'median', label: 'Median', fmt: v => fmtLeadTime(v), cls: 'col-ai' },
+    { key: 'p75', label: 'P75', fmt: v => fmtLeadTime(v), cls: 'col-ai' },
+    { key: 'p90', label: 'P90', fmt: v => fmtLeadTime(v), cls: 'col-manual' },
+    { key: 'avg', label: 'Avg', fmt: v => fmtLeadTime(v), cls: '' },
+    { key: 'max', label: 'Max', fmt: v => fmtLeadTime(v), cls: '' },
+  ];
+
+  let ltSortCol = 'median', ltSortDir = 'asc', ltSearchTerm = '', ltSelectedDev = null;
+
+  function renderLtDevTable(devLt, withLt) {
+    document.getElementById('sectionLtDevs').innerHTML = `
+      <div class="section-title">By Developer</div>
+      <div class="card" style="padding:20px 24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+          <div class="usage-chart-title">All Contributors <span id="ltTblCount" style="font-weight:400;color:var(--gray-500);font-size:13px">(${devLt.length})</span></div>
+          <input type="text" class="tbl-search" placeholder="Search developer..." id="ltTblSearch">
+        </div>
+        <div class="tbl-wrap">
+          <table class="sort-table" id="ltTable"><thead id="ltTblHead"></thead><tbody id="ltTblBody"></tbody></table>
+        </div>
+        <div class="dev-detail" id="ltDevDetail">
+          <div class="dev-detail-header">
+            <div class="dev-detail-name" id="ltDevDetailName"></div>
+            <button class="dev-detail-close" id="ltDevDetailClose">Close</button>
+          </div>
+          <div class="dev-detail-stats" id="ltDevDetailStats"></div>
+          <div class="two-col">
+            <div class="card" style="padding:16px 20px">
+              <div class="usage-chart-header">
+                <div class="usage-chart-title">Monthly Lead Time</div>
+                <div class="usage-badge">Median</div>
+              </div>
+              <div class="chart-wrap" style="height:260px"><canvas id="ltDevChartTime"></canvas></div>
+            </div>
+            <div class="card" style="padding:16px 20px">
+              <div class="usage-chart-header">
+                <div class="usage-chart-title">PR Distribution</div>
+                <div class="usage-badge">Hours</div>
+              </div>
+              <div class="chart-wrap" style="height:260px"><canvas id="ltDevChartDist"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    ltSelectedDev = null;
+
+    function showLtDevDetail(name) {
+      const dev = devLt.find(d => d.name === name);
+      if (!dev) return;
+      ltSelectedDev = name;
+      document.getElementById('ltDevDetail').classList.add('open');
+      document.getElementById('ltDevDetail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      document.getElementById('ltDevDetailName').textContent = name;
+
+      document.getElementById('ltDevDetailStats').innerHTML = `
+        <div><div class="dev-detail-stat-label">PRs</div><div class="dev-detail-stat-val">${dev.prs}</div></div>
+        <div><div class="dev-detail-stat-label">Median</div><div class="dev-detail-stat-val" style="color:var(--blue)">${fmtLeadTime(dev.median)}</div></div>
+        <div><div class="dev-detail-stat-label">P75</div><div class="dev-detail-stat-val">${fmtLeadTime(dev.p75)}</div></div>
+        <div><div class="dev-detail-stat-label">P90</div><div class="dev-detail-stat-val" style="color:var(--pink)">${fmtLeadTime(dev.p90)}</div></div>
+        <div><div class="dev-detail-stat-label">Avg</div><div class="dev-detail-stat-val">${fmtLeadTime(dev.avg)}</div></div>
+        <div><div class="dev-detail-stat-label">Max</div><div class="dev-detail-stat-val">${fmtLeadTime(dev.max)}</div></div>`;
+
+      const devRows = withLt.filter(d => d.pull_request_owner === name);
+      const monthBuckets = {};
+      devRows.forEach(d => {
+        const month = d.merge_date.slice(0, 7);
+        if (!monthBuckets[month]) monthBuckets[month] = [];
+        monthBuckets[month].push(d.ltHours);
+      });
+      const months = Object.keys(monthBuckets).sort();
+      const medByMonth = months.map(m => {
+        const s = monthBuckets[m].sort((a, b) => a - b);
+        return s.length % 2 === 0 ? (s[s.length / 2 - 1] + s[s.length / 2]) / 2 : s[Math.floor(s.length / 2)];
+      });
+      const volByMonth = months.map(m => monthBuckets[m].length);
+
+      makeChart('ltDevChartTime', {
+        type: 'bar',
+        data: {
+          labels: months,
+          datasets: [
+            { label: 'PRs', data: volByMonth, backgroundColor: 'rgba(200,203,224,0.35)', borderColor: 'rgba(200,203,224,0.5)', borderWidth: 1, borderRadius: 2, yAxisID: 'yVol', order: 2 },
+            { label: 'Median', data: medByMonth, type: 'line', borderColor: BLUE, backgroundColor: BLUE_A, borderWidth: 2, fill: true, tension: 0.3, pointRadius: 3, pointHitRadius: 8, yAxisID: 'y', order: 1 },
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 14 } },
+            tooltip: { ...tooltipOpts, callbacks: { label: ctx => ctx.dataset.yAxisID === 'yVol' ? `PRs: ${ctx.parsed.y}` : `Median: ${fmtLeadTime(ctx.parsed.y)}` } },
+          },
+          scales: {
+            x: { ticks: { color: TICK, font: { family: 'Inter', size: 10 } }, grid: { color: GRID, drawBorder: false } },
+            y: scaleY({ position: 'left', title: { display: true, text: 'Hours', color: TICK, font: { family: 'Inter', size: 10 } } }),
+            yVol: { position: 'right', beginAtZero: true, ticks: { color: 'rgba(200,203,224,0.8)', font: { family: 'Inter', size: 10 }, precision: 0 }, grid: { drawOnChartArea: false }, title: { display: true, text: 'PRs', color: 'rgba(200,203,224,0.8)', font: { family: 'Inter', size: 10 } } },
+          }
+        }
+      });
+
+      const allHrs = devRows.map(d => d.ltHours);
+      const bucketEdges = [0, 1, 2, 4, 8, 12, 24, 48, 72, 120, 168, Infinity];
+      const bucketLabels = ['<1h', '1-2h', '2-4h', '4-8h', '8-12h', '12-24h', '1-2d', '2-3d', '3-5d', '5-7d', '>7d'];
+      const bucketCounts = new Array(bucketLabels.length).fill(0);
+      allHrs.forEach(h => {
+        for (let i = 0; i < bucketEdges.length - 1; i++) {
+          if (h >= bucketEdges[i] && h < bucketEdges[i + 1]) { bucketCounts[i]++; break; }
+        }
+      });
+
+      makeChart('ltDevChartDist', {
+        type: 'bar',
+        data: {
+          labels: bucketLabels,
+          datasets: [{
+            label: 'PRs',
+            data: bucketCounts,
+            backgroundColor: bucketLabels.map((_, i) => {
+              const ratio = i / (bucketLabels.length - 1);
+              return ratio < 0.4 ? 'rgba(59,63,230,0.6)' : ratio < 0.7 ? 'rgba(139,142,245,0.6)' : 'rgba(232,78,163,0.5)';
+            }),
+            borderColor: bucketLabels.map((_, i) => {
+              const ratio = i / (bucketLabels.length - 1);
+              return ratio < 0.4 ? BLUE : ratio < 0.7 ? '#8B8EF5' : PINK;
+            }),
+            borderWidth: 1, borderRadius: 3,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { ...tooltipOpts, callbacks: { label: ctx => `${ctx.parsed.y} PRs` } } },
+          scales: {
+            x: { ticks: { color: TICK, font: { family: 'Inter', size: 10 } }, grid: { display: false } },
+            y: scaleY(),
+          }
+        }
+      });
+
+      document.querySelectorAll('#ltTable tbody tr').forEach(tr => {
+        tr.classList.toggle('active-row', tr.dataset.dev === name);
+      });
+    }
+
+    function hideLtDevDetail() {
+      ltSelectedDev = null;
+      document.getElementById('ltDevDetail').classList.remove('open');
+      if (charts.ltDevChartTime) { charts.ltDevChartTime.destroy(); delete charts.ltDevChartTime; }
+      if (charts.ltDevChartDist) { charts.ltDevChartDist.destroy(); delete charts.ltDevChartDist; }
+      document.querySelectorAll('#ltTable tbody tr').forEach(tr => tr.classList.remove('active-row'));
+    }
+
+    document.getElementById('ltDevDetailClose').addEventListener('click', hideLtDevDetail);
+
+    function updateLtTable() {
+      const filtered = ltSearchTerm ? devLt.filter(r => r.name.toLowerCase().includes(ltSearchTerm)) : devLt;
+      const sorted = [...filtered].sort((a, b) => {
+        const av = a[ltSortCol], bv = b[ltSortCol];
+        if (typeof av === 'string') return ltSortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+        return ltSortDir === 'asc' ? av - bv : bv - av;
+      });
+      document.getElementById('ltTblCount').textContent = `(${sorted.length})`;
+      document.getElementById('ltTblHead').innerHTML = '<tr>' + LT_COLS.map(c => {
+        const active = ltSortCol === c.key;
+        const arrow = active ? (ltSortDir === 'asc' ? '&#9650;' : '&#9660;') : '';
+        return `<th class="${active ? 'sorted-' + ltSortDir : ''}" data-col="${c.key}">${c.label}<span class="sort-arrow">${arrow}</span></th>`;
+      }).join('') + '</tr>';
+      document.getElementById('ltTblBody').innerHTML = sorted.map(r =>
+        `<tr data-dev="${r.name}" class="${ltSelectedDev === r.name ? 'active-row' : ''}">` +
+        LT_COLS.map(c => `<td class="${c.cls}">${c.fmt(r[c.key])}</td>`).join('') + '</tr>'
+      ).join('');
+      document.querySelectorAll('#ltTable th').forEach(th => {
+        th.addEventListener('click', () => {
+          const col = th.dataset.col;
+          if (ltSortCol === col) ltSortDir = ltSortDir === 'asc' ? 'desc' : 'asc';
+          else { ltSortCol = col; ltSortDir = col === 'name' ? 'asc' : 'asc'; }
+          updateLtTable();
+        });
+      });
+      document.querySelectorAll('#ltTable tbody tr').forEach(tr => {
+        tr.addEventListener('click', () => {
+          const name = tr.dataset.dev;
+          if (ltSelectedDev === name) hideLtDevDetail(); else showLtDevDetail(name);
+        });
+      });
+    }
+
+    document.getElementById('ltTblSearch').addEventListener('input', e => {
+      ltSearchTerm = e.target.value.toLowerCase();
+      updateLtTable();
+    });
+    updateLtTable();
+  }
+
+  document.querySelectorAll('.lt-period-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.lt-period-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderLeadTime(btn.dataset.period);
+    });
+  });
+
+  // ===== ZENITH TAB =====
+  let zenPeriod = 'week';
+
+  function aggregateZenithByPeriod(deploys, period) {
+    const buckets = {};
+    deploys.forEach(dep => {
+      if (!dep.origin_type) return;
+      const raw = dep.merge_date || dep.inserted_at;
+      if (!raw) return;
+      const dateStr = raw.slice(0, 10);
+      let key;
+      if (period === 'day') key = dateStr;
+      else if (period === 'week') key = getWeekStart(dateStr);
+      else key = dateStr.slice(0, 7);
+
+      if (!buckets[key]) buckets[key] = { zenith: 0, legacy: 0 };
+      if (dep.origin_type === 'zenith') buckets[key].zenith++;
+      else buckets[key].legacy++;
+    });
+    const curKey = currentPeriodKey(period);
+    return Object.keys(buckets).sort().filter(k => k < curKey).map(k => ({ period: k, ...buckets[k], total: buckets[k].zenith + buckets[k].legacy }));
+  }
+
+  function renderZenith(period) {
+    zenPeriod = period;
+    const filtered = filterDeploys();
+    const tagged = filtered.filter(d => d.origin_type);
+    const zenithCount = tagged.filter(d => d.origin_type === 'zenith').length;
+    const legacyCount = tagged.filter(d => d.origin_type === 'legacy').length;
+    const zenithPct = tagged.length > 0 ? (zenithCount / tagged.length * 100).toFixed(1) : '0';
+    const agg = aggregateZenithByPeriod(filtered, period);
+
+    const last4 = agg.slice(-4);
+    const prev4 = agg.slice(-8, -4);
+    const l4zen = last4.reduce((a, d) => a + d.zenith, 0);
+    const p4zen = prev4.reduce((a, d) => a + d.zenith, 0);
+    const zenTrend = p4zen > 0 ? ((l4zen - p4zen) / p4zen * 100).toFixed(0) : '—';
+    const zenUp = l4zen >= p4zen;
+
+    const zenithRepos = new Set(tagged.filter(d => d.origin_type === 'zenith').map(d => d.repository_name));
+    const legacyRepos = new Set(tagged.filter(d => d.origin_type === 'legacy').map(d => d.repository_name));
+
+    document.getElementById('zenithStats').innerHTML = `
+      <div class="card">
+        <div class="stat-label">Total Deploys</div>
+        <div class="stat-value" style="color:var(--gray-900)">${fmtNum(tagged.length)}</div>
+      </div>
+      <div class="card card-accent">
+        <div class="stat-label">Zenith Deploys</div>
+        <div class="stat-value stat-accent">${fmtNum(zenithCount)}</div>
+        <div class="stat-sub">${zenUp ? '&#9650;' : '&#9660;'} ${zenTrend}% trend</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Legacy Deploys</div>
+        <div class="stat-value stat-accent-pink">${fmtNum(legacyCount)}</div>
+      </div>
+      <div class="card card-accent">
+        <div class="stat-label">Zenith Share</div>
+        <div class="stat-value stat-accent">${zenithPct}%</div>
+        <div class="stat-sub">of classified deploys</div>
+      </div>`;
+
+    const labels = agg.map(a => a.period);
+    const timeUnit = period === 'day' ? 'week' : 'month';
+    const zenPctData = agg.map(a => a.total > 0 ? (a.zenith / a.total * 100) : null);
+
+    makeChart('chartZenith', {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'Zenith', data: agg.map(a => a.zenith), backgroundColor: 'rgba(59,63,230,0.6)', borderColor: BLUE, borderWidth: 1, borderRadius: 3, stack: 'origin', order: 3 },
+          { label: 'Legacy', data: agg.map(a => a.legacy), backgroundColor: 'rgba(232,78,163,0.45)', borderColor: PINK, borderWidth: 1, borderRadius: 3, stack: 'origin', order: 4 },
+          { label: 'Zenith %', data: zenPctData, type: 'line', borderColor: BLUE, borderWidth: 2, borderDash: [5, 3], fill: false, tension: 0.3, pointRadius: 0, pointHitRadius: 8, yAxisID: 'yPct', order: 1 },
+          { label: 'Zenith % Trend', data: linReg(zenPctData.map(v => v || 0)), type: 'line', borderColor: BLUE, borderWidth: 2, borderDash: [6, 4], fill: false, pointRadius: 0, pointHitRadius: 0, tension: 0, yAxisID: 'yPct', order: 2 },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 14 } },
+          tooltip: { ...tooltipOpts, callbacks: { label: ctx => ctx.dataset.yAxisID === 'yPct' ? `${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(1)}%` : `${ctx.dataset.label}: ${ctx.parsed.y}` } },
+        },
+        scales: {
+          x: {
+            type: 'time',
+            time: { unit: timeUnit, tooltipFormat: period === 'month' ? 'MMM yyyy' : 'MMM d, yyyy' },
+            ticks: { color: TICK, font: { family: 'Inter', size: 10 }, maxRotation: 0 },
+            grid: { color: GRID, drawBorder: false },
+            stacked: true,
+          },
+          y: scaleY({ stacked: true, position: 'left', title: { display: true, text: 'Deploys', color: TICK, font: { family: 'Inter', size: 10 } } }),
+          yPct: { position: 'right', min: 0, max: 100, ticks: { color: BLUE, font: { family: 'Inter', size: 10 }, callback: v => v + '%' }, grid: { drawOnChartArea: false }, title: { display: true, text: 'Zenith %', color: BLUE, font: { family: 'Inter', size: 10 } } },
+        }
+      }
+    });
+
+    renderZenithDevs(tagged);
+  }
+
+  function renderZenithDevs(tagged) {
+    const devBuckets = {};
+    tagged.forEach(d => {
+      const owner = d.pull_request_owner;
+      if (!devBuckets[owner]) devBuckets[owner] = { zenith: 0, legacy: 0, months: {}, repos: {} };
+      const b = devBuckets[owner];
+      if (d.origin_type === 'zenith') b.zenith++; else b.legacy++;
+      const mKey = (d.merge_date || d.inserted_at || '').slice(0, 7);
+      if (mKey) {
+        if (!b.months[mKey]) b.months[mKey] = { zenith: 0, legacy: 0 };
+        if (d.origin_type === 'zenith') b.months[mKey].zenith++; else b.months[mKey].legacy++;
+      }
+      const repo = d.repository_name;
+      if (repo) {
+        if (!b.repos[repo]) b.repos[repo] = { zenith: 0, legacy: 0 };
+        if (d.origin_type === 'zenith') b.repos[repo].zenith++; else b.repos[repo].legacy++;
+      }
+    });
+    const devData = Object.entries(devBuckets).map(([name, d]) => ({
+      name,
+      total: d.zenith + d.legacy,
+      zenith: d.zenith,
+      legacy: d.legacy,
+      zenithPct: d.zenith + d.legacy > 0 ? Math.round(d.zenith / (d.zenith + d.legacy) * 1000) / 10 : 0,
+      months: Object.entries(d.months).sort((a, b) => a[0].localeCompare(b[0])).map(([m, v]) => ({ month: m, ...v })),
+      repoBreakdown: Object.entries(d.repos).map(([repo, v]) => ({ repo, zenith: v.zenith, legacy: v.legacy, total: v.zenith + v.legacy })).sort((a, b) => b.total - a.total),
+    })).sort((a, b) => b.zenith - a.zenith);
+
+    const ZEN_COLS = [
+      { key: 'name', label: 'Developer', fmt: v => v, cls: '' },
+      { key: 'total', label: 'Total', fmt: v => v, cls: '' },
+      { key: 'zenith', label: 'Zenith', fmt: v => v, cls: 'col-ai' },
+      { key: 'legacy', label: 'Legacy', fmt: v => v, cls: 'col-manual' },
+      { key: 'zenithPct', label: 'Zenith %', fmt: v => v + '%', cls: 'col-ai col-pct' },
+    ];
+
+    const el = document.getElementById('sectionZenithDevs');
+    el.innerHTML = `
+      <div class="section-title">Developer Detail</div>
+      <div class="card" style="padding:20px 24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+          <div class="usage-chart-title">All Contributors <span id="zenTblCount" style="font-weight:400;color:var(--gray-500);font-size:13px">(${devData.length})</span></div>
+          <input type="text" class="tbl-search" placeholder="Search developer..." id="zenTblSearch">
+        </div>
+        <div class="tbl-wrap">
+          <table class="sort-table" id="zenTable"><thead id="zenTblHead"></thead><tbody id="zenTblBody"></tbody></table>
+        </div>
+        <div class="dev-detail" id="zenDevDetail">
+          <div class="dev-detail-header">
+            <div class="dev-detail-name" id="zenDevDetailName"></div>
+            <button class="dev-detail-close" id="zenDevDetailClose">Close</button>
+          </div>
+          <div class="dev-detail-stats" id="zenDevDetailStats"></div>
+          <div class="two-col">
+            <div class="card" style="padding:16px 20px">
+              <div class="usage-chart-header">
+                <div class="usage-chart-title">Zenith vs Legacy</div>
+                <div class="usage-badge">By Month</div>
+              </div>
+              <div class="chart-wrap" style="height:260px"><canvas id="zenDevChart"></canvas></div>
+            </div>
+            <div class="card" style="padding:16px 20px">
+              <div class="usage-chart-header">
+                <div class="usage-chart-title">Repositories</div>
+                <div class="usage-badge">By Repo</div>
+              </div>
+              <div class="chart-wrap" id="zenDevRepoChartWrap" style="height:260px"><canvas id="zenDevRepoChart"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    let zenSortCol = 'zenith', zenSortDir = 'desc', zenSearch = '', zenSelectedDev = null;
+
+    function showZenDevDetail(name) {
+      const dev = devData.find(d => d.name === name);
+      if (!dev) return;
+      zenSelectedDev = name;
+      document.getElementById('zenDevDetail').classList.add('open');
+      document.getElementById('zenDevDetail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      document.getElementById('zenDevDetailName').textContent = name;
+
+      document.getElementById('zenDevDetailStats').innerHTML = `
+        <div><div class="dev-detail-stat-label">Total</div><div class="dev-detail-stat-val">${dev.total}</div></div>
+        <div><div class="dev-detail-stat-label">Zenith</div><div class="dev-detail-stat-val" style="color:var(--blue)">${dev.zenith}</div></div>
+        <div><div class="dev-detail-stat-label">Legacy</div><div class="dev-detail-stat-val" style="color:var(--pink)">${dev.legacy}</div></div>
+        <div><div class="dev-detail-stat-label">Zenith %</div><div class="dev-detail-stat-val" style="color:var(--blue)">${dev.zenithPct}%</div></div>
+        <div><div class="dev-detail-stat-label">Repositories</div><div class="dev-detail-stat-val">${dev.repoBreakdown.length}</div></div>
+        <div><div class="dev-detail-stat-label">Active Months</div><div class="dev-detail-stat-val">${dev.months.length}</div></div>`;
+
+      makeChart('zenDevChart', {
+        type: 'bar',
+        data: {
+          labels: dev.months.map(m => m.month),
+          datasets: [
+            { label: 'Zenith', data: dev.months.map(m => m.zenith), backgroundColor: 'rgba(59,63,230,0.6)', borderColor: BLUE, borderWidth: 1, borderRadius: 3 },
+            { label: 'Legacy', data: dev.months.map(m => m.legacy), backgroundColor: PINK_A, borderColor: PINK, borderWidth: 1, borderRadius: 3 },
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 14 } }, tooltip: tooltipOpts },
+          scales: {
+            x: { stacked: true, ticks: { color: TICK, font: { family: 'Inter', size: 10 } }, grid: { color: GRID, drawBorder: false } },
+            y: { ...scaleY(), stacked: true }
+          }
+        }
+      });
+
+      const repoH = Math.max(260, dev.repoBreakdown.length * 28 + 40);
+      document.getElementById('zenDevRepoChartWrap').style.height = repoH + 'px';
+
+      makeChart('zenDevRepoChart', {
+        type: 'bar',
+        data: {
+          labels: dev.repoBreakdown.map(r => r.repo),
+          datasets: [
+            { label: 'Zenith', data: dev.repoBreakdown.map(r => r.zenith), backgroundColor: 'rgba(59,63,230,0.6)', borderColor: BLUE, borderWidth: 1, borderRadius: 3 },
+            { label: 'Legacy', data: dev.repoBreakdown.map(r => r.legacy), backgroundColor: PINK_A, borderColor: PINK, borderWidth: 1, borderRadius: 3 },
+          ]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 14 } }, tooltip: tooltipOpts },
+          scales: {
+            x: { stacked: true, ticks: { color: TICK, font: { family: 'Inter', size: 10 }, precision: 0 }, grid: { color: GRID, drawBorder: false }, beginAtZero: true },
+            y: { stacked: true, ticks: { color: TICK, font: { family: 'Inter', size: 10 } }, grid: { display: false } },
+          }
+        }
+      });
+
+      document.querySelectorAll('#zenTable tbody tr').forEach(tr => {
+        tr.classList.toggle('active-row', tr.dataset.dev === name);
+      });
+    }
+
+    function hideZenDevDetail() {
+      zenSelectedDev = null;
+      document.getElementById('zenDevDetail').classList.remove('open');
+      if (charts.zenDevChart) { charts.zenDevChart.destroy(); delete charts.zenDevChart; }
+      if (charts.zenDevRepoChart) { charts.zenDevRepoChart.destroy(); delete charts.zenDevRepoChart; }
+      document.querySelectorAll('#zenTable tbody tr').forEach(tr => tr.classList.remove('active-row'));
+    }
+
+    document.getElementById('zenDevDetailClose').addEventListener('click', hideZenDevDetail);
+
+    function updateZenTable() {
+      const filtered = zenSearch ? devData.filter(r => r.name.toLowerCase().includes(zenSearch)) : devData;
+      const sorted = [...filtered].sort((a, b) => {
+        const av = a[zenSortCol], bv = b[zenSortCol];
+        if (typeof av === 'string') return zenSortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+        return zenSortDir === 'asc' ? av - bv : bv - av;
+      });
+      document.getElementById('zenTblCount').textContent = `(${sorted.length})`;
+      document.getElementById('zenTblHead').innerHTML = '<tr>' + ZEN_COLS.map(c => {
+        const active = zenSortCol === c.key;
+        const arrow = active ? (zenSortDir === 'asc' ? '&#9650;' : '&#9660;') : '';
+        return `<th class="${active ? 'sorted-' + zenSortDir : ''}" data-col="${c.key}">${c.label}<span class="sort-arrow">${arrow}</span></th>`;
+      }).join('') + '</tr>';
+      document.getElementById('zenTblBody').innerHTML = sorted.map(r =>
+        `<tr data-dev="${r.name}" class="${zenSelectedDev === r.name ? 'active-row' : ''}">` +
+        ZEN_COLS.map(c => `<td class="${c.cls}">${c.fmt(r[c.key])}</td>`).join('') + '</tr>'
+      ).join('');
+      document.querySelectorAll('#zenTable th').forEach(th => {
+        th.addEventListener('click', () => {
+          const col = th.dataset.col;
+          if (zenSortCol === col) zenSortDir = zenSortDir === 'asc' ? 'desc' : 'asc';
+          else { zenSortCol = col; zenSortDir = col === 'name' ? 'asc' : 'desc'; }
+          updateZenTable();
+        });
+      });
+      document.querySelectorAll('#zenTable tbody tr').forEach(tr => {
+        tr.addEventListener('click', () => {
+          const name = tr.dataset.dev;
+          if (zenSelectedDev === name) hideZenDevDetail(); else showZenDevDetail(name);
+        });
+      });
+    }
+
+    document.getElementById('zenTblSearch').addEventListener('input', e => {
+      zenSearch = e.target.value.toLowerCase();
+      updateZenTable();
+    });
+    updateZenTable();
+  }
+
+  document.querySelectorAll('.zen-period-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.zen-period-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderZenith(btn.dataset.period);
     });
   });
 })();
