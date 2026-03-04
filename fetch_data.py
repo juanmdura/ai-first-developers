@@ -242,21 +242,38 @@ def aggregate_user_monthly(rows):
     return result
 
 
-def write_data_js(daily_data, leaderboard, user_monthly, output_path):
-    """Write data.js file for the dashboard."""
-    lines = ["const DATA = [\n"]
-    for i, d in enumerate(daily_data):
-        comma = "," if i < len(daily_data) - 1 else ""
-        lines.append(f"  {json.dumps(d)}{comma}\n")
-    lines.append("];\n\n")
-    lines.append("const LEADERBOARD = [\n")
-    for i, u in enumerate(leaderboard):
-        comma = "," if i < len(leaderboard) - 1 else ""
-        lines.append(f"  {json.dumps(u)}{comma}\n")
-    lines.append("];\n\n")
-    lines.append(f"const USER_MONTHLY = {json.dumps(user_monthly)};\n")
+def prepare_raw_daily(rows):
+    """Prepare compact per-user daily rows for frontend aggregation."""
+    result = []
+    for r in rows:
+        email = r.get("email", "")
+        if not email:
+            continue
+        result.append({
+            "e": email,
+            "d": r.get("day", ""),
+            "la": r.get("totalLinesAdded", 0),
+            "ld": r.get("totalLinesDeleted", 0),
+            "aa": r.get("acceptedLinesAdded", 0),
+            "ad": r.get("acceptedLinesDeleted", 0),
+            "ar": r.get("agentRequests", 0),
+            "cr": r.get("chatRequests", 0),
+            "ta": r.get("totalTabsAccepted", 0),
+            "ts": r.get("totalTabsShown", 0),
+            "ap": r.get("totalApplies", 0),
+            "ac": r.get("totalAccepts", 0),
+            "x": 1 if (r.get("isActive") or r.get("totalLinesAdded", 0) > 0) else 0,
+            "m": r.get("mostUsedModel", ""),
+        })
+    return result
+
+
+def write_data_js(raw_daily, output_path):
+    """Write data.js with compact raw daily rows for frontend aggregation."""
     with open(output_path, "w") as f:
-        f.writelines(lines)
+        f.write("const R=")
+        json.dump(raw_daily, f, separators=(",", ":"))
+        f.write(";\n")
 
 
 
@@ -279,24 +296,17 @@ def main():
     raw_rows = fetch_daily_usage(api_key, start, end)
     print(f"  Total raw rows: {len(raw_rows)}\n")
 
-    print("Aggregating daily totals...")
-    daily_data = aggregate_daily(raw_rows)
-    print(f"  Days with data: {len(daily_data)}\n")
-
-    print("Building leaderboard...")
-    leaderboard = aggregate_leaderboard(raw_rows)
-    print(f"  Users with activity: {len(leaderboard)}\n")
-
-    print("Building per-user monthly data...")
-    user_monthly = aggregate_user_monthly(raw_rows)
-    print(f"  Users with monthly data: {len(user_monthly)}\n")
+    print("Preparing raw daily data...")
+    raw_daily = prepare_raw_daily(raw_rows)
+    print(f"  Rows for frontend: {len(raw_daily)}\n")
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     js_path = os.path.join(script_dir, "data.js")
 
-    write_data_js(daily_data, leaderboard, user_monthly, js_path)
+    write_data_js(raw_daily, js_path)
     print(f"Wrote {js_path}")
 
+    daily_data = aggregate_daily(raw_rows)
     total_added = sum(d["totalLinesAdded"] for d in daily_data)
     total_ai = sum(d["aiLinesAdded"] for d in daily_data)
     ai_pct = (total_ai / total_added * 100) if total_added > 0 else 0
@@ -304,7 +314,8 @@ def main():
     print(f"  AI Share: {ai_pct:.1f}%")
     print(f"  Total Lines Added: {total_added:,}")
     print(f"  AI Lines Added: {total_ai:,}")
-    print(f"  Peak Active Users: {max(d['uniqueUsers'] for d in daily_data)}")
+    print(f"  Users: {len(set(r['e'] for r in raw_daily))}")
+    print(f"  Days: {len(daily_data)}")
 
 
 if __name__ == "__main__":

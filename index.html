@@ -46,17 +46,65 @@
       align-items: center;
       justify-content: space-between;
     }
-
     .topbar-brand { display: flex; align-items: center; gap: 14px; }
     .topbar-logo { font-weight: 900; font-size: 22px; color: var(--white); letter-spacing: -0.5px; }
     .topbar-sep { width: 1px; height: 24px; background: rgba(255,255,255,0.3); }
     .topbar-subtitle { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.85); }
     .topbar-meta { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.7); }
 
-    .container { max-width: 1280px; margin: 0 auto; padding: 32px 40px 56px; }
-    @media (max-width: 768px) { .topbar { padding: 0 20px; } .container { padding: 20px 20px 40px; } }
+    /* --- Filter bar --- */
+    .filter-bar {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 10px 40px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .filter-group { display: flex; align-items: center; gap: 8px; }
+    .filter-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--gray-500);
+    }
+    .filter-input {
+      padding: 6px 12px;
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: var(--gray-900);
+      background: var(--white);
+      outline: none;
+      transition: border-color .15s;
+    }
+    .filter-input:focus { border-color: var(--blue); }
+    select.filter-input { min-width: 180px; cursor: pointer; }
+    .filter-reset {
+      background: none;
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 6px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-500);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .filter-reset:hover { border-color: var(--blue); color: var(--blue); }
+    .filter-active-tag {
+      font-size: 11px; font-weight: 700; color: var(--blue);
+      background: rgba(59,63,230,0.08); border-radius: 6px;
+      padding: 4px 10px;
+    }
 
-    /* --- Section --- */
+    .container { max-width: 1280px; margin: 0 auto; padding: 32px 40px 56px; }
+    @media (max-width: 768px) {
+      .topbar, .filter-bar { padding-left: 20px; padding-right: 20px; }
+      .container { padding: 20px 20px 40px; }
+    }
+
     .section { margin-bottom: 40px; }
     .section-title {
       font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
@@ -64,19 +112,14 @@
     }
     .section-divider { border: none; border-top: 1px solid var(--gray-200); margin: 0 0 40px; }
 
-    /* --- Cards --- */
     .card {
       background: var(--white);
       border: 1px solid var(--gray-200);
       border-radius: var(--radius);
       padding: 28px 32px;
     }
+    .card-accent { border-left: 4px solid var(--blue); }
 
-    .card-accent {
-      border-left: 4px solid var(--blue);
-    }
-
-    /* --- Stat cards row --- */
     .stat-row {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -91,29 +134,16 @@
     .stat-sub { font-size: 13px; font-weight: 600; color: var(--gray-500); margin-top: 6px; }
     .stat-accent { color: var(--blue); }
     .stat-accent-pink { color: var(--pink); }
-
-
     .stat-bar { height: 8px; border-radius: 4px; background: var(--gray-100); margin-top: 12px; overflow: hidden; }
     .stat-bar-fill { height: 100%; border-radius: 4px; }
 
     .chart-wrap { position: relative; width: 100%; height: 300px; }
     canvas { width: 100% !important; height: 100% !important; }
 
-    /* --- Two-col layout --- */
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
 
-    /* --- Leaderboard --- */
-    .dev-stat-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 0;
-    }
+    .dev-stat-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
     .dev-stat-row + .dev-stat-row { border-top: 1px solid var(--gray-100); }
     .dev-stat-rank {
       width: 28px; height: 28px; border-radius: 50%; background: var(--gray-100);
@@ -128,8 +158,6 @@
     .dev-stat-val { font-size: 13px; font-weight: 700; color: var(--gray-700); width: 50px; text-align: right; flex-shrink: 0; }
     .dev-stat-model { font-size: 11px; color: var(--gray-500); font-weight: 500; }
 
-    /* --- Usage Section --- */
-
     .usage-chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
     .usage-chart-title { font-size: 15px; font-weight: 700; color: var(--gray-900); }
     .usage-badge {
@@ -137,12 +165,8 @@
       background: var(--gray-100); color: var(--blue); text-transform: uppercase; letter-spacing: 0.5px;
     }
 
-    /* --- Sortable Table --- */
     .tbl-wrap { overflow-x: auto; }
-    .sort-table {
-      width: 100%; border-collapse: separate; border-spacing: 0;
-      font-size: 13px; font-family: 'Inter', sans-serif;
-    }
+    .sort-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; font-family: 'Inter', sans-serif; }
     .sort-table th {
       position: sticky; top: 0; z-index: 2;
       background: var(--gray-50); color: var(--gray-500);
@@ -152,8 +176,7 @@
     }
     .sort-table th:first-child { text-align: left; }
     .sort-table th:hover { color: var(--blue); }
-    .sort-table th.sorted-asc,
-    .sort-table th.sorted-desc { color: var(--blue); }
+    .sort-table th.sorted-asc, .sort-table th.sorted-desc { color: var(--blue); }
     .sort-table th .sort-arrow { font-size: 10px; margin-left: 4px; }
     .sort-table td {
       padding: 9px 14px; text-align: right; white-space: nowrap;
@@ -165,20 +188,17 @@
     .sort-table .col-ai { color: var(--blue); }
     .sort-table .col-manual { color: var(--pink); }
     .sort-table .col-pct { font-weight: 700; }
+    .sort-table tr { cursor: pointer; }
+    .sort-table tr.active-row td { background: var(--gray-100); }
+    .sort-table tr.active-row td:first-child { color: var(--blue); }
     .tbl-search {
       width: 280px; padding: 8px 14px; border: 1px solid var(--gray-200); border-radius: 8px;
       font-family: 'Inter', sans-serif; font-size: 13px; outline: none; transition: border-color .15s;
     }
     .tbl-search:focus { border-color: var(--blue); }
-    .sort-table tr { cursor: pointer; }
-    .sort-table tr.active-row td { background: var(--gray-100); }
-    .sort-table tr.active-row td:first-child { color: var(--blue); }
     .dev-detail { margin-top: 16px; display: none; }
     .dev-detail.open { display: block; }
-    .dev-detail-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 12px; flex-wrap: wrap; gap: 8px;
-    }
+    .dev-detail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
     .dev-detail-name { font-size: 17px; font-weight: 800; color: var(--gray-900); }
     .dev-detail-close {
       background: none; border: 1px solid var(--gray-200); border-radius: 8px;
@@ -186,9 +206,7 @@
       font-weight: 600; color: var(--gray-500); cursor: pointer; transition: all .15s;
     }
     .dev-detail-close:hover { border-color: var(--blue); color: var(--blue); }
-    .dev-detail-stats {
-      display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 16px;
-    }
+    .dev-detail-stats { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 16px; }
     .dev-detail-stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--gray-500); }
     .dev-detail-stat-val { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
   </style>
@@ -199,602 +217,728 @@
   <div class="topbar-brand">
     <div class="topbar-logo">zubale</div>
     <div class="topbar-sep"></div>
-    <div class="topbar-subtitle">AI Code Analytics</div>
+    <div class="topbar-subtitle">AI-first Developers</div>
   </div>
   <div class="topbar-meta" id="dateRange"></div>
 </nav>
 
+<div class="filter-bar">
+  <div class="filter-group">
+    <label class="filter-label">From</label>
+    <input type="date" id="fStart" class="filter-input">
+  </div>
+  <div class="filter-group">
+    <label class="filter-label">To</label>
+    <input type="date" id="fEnd" class="filter-input">
+  </div>
+  <div class="filter-group">
+    <label class="filter-label">Developer</label>
+    <select id="fDev" class="filter-input">
+      <option value="">All Developers</option>
+    </select>
+  </div>
+  <button class="filter-reset" id="fReset">Reset</button>
+  <span class="filter-active-tag" id="fTag" style="display:none"></span>
+</div>
+
 <div class="container">
-  <!-- Section 1: LOC AI vs Manual -->
   <div class="section" id="sectionLoc"></div>
-
   <hr class="section-divider">
-
-  <!-- Section 2: AI-first Developers -->
   <div class="section" id="sectionDev"></div>
-
   <hr class="section-divider">
-
-  <!-- Section 3: AI Usage -->
   <div class="section" id="sectionUsage"></div>
-
   <hr class="section-divider">
-
-  <!-- Section 4: Detail Table -->
   <div class="section" id="sectionTable"></div>
 </div>
 
 <script src="data.js"></script>
 <script>
 (function() {
-  const dates = DATA.map(d => d.date);
-  document.getElementById('dateRange').textContent =
-    `${fmtDate(dates[0])} — ${fmtDate(dates[dates.length - 1])}`;
-
-  const totalAdded = sum('totalLinesAdded');
-  const totalDeleted = sum('totalLinesDeleted');
-  const totalModified = totalAdded + totalDeleted;
-  const aiAdded = sum('aiLinesAdded');
-  const aiDeleted = sum('aiLinesDeleted');
-  const aiTotal = aiAdded + aiDeleted;
-  const manualTotal = totalModified - aiTotal;
-  const pct = v => totalModified > 0 ? (v / totalModified * 100).toFixed(1) : '0';
-
-  // ----- Section 1: LOC AI vs Manual -----
-  const aiPctVal = totalModified > 0 ? (aiTotal / totalModified * 100).toFixed(1) : '0';
-
-  // monthly trend: compare last 30 days vs previous 30 days
-  const last30 = DATA.slice(-30);
-  const prev30 = DATA.slice(-60, -30);
-  const last30Ai = last30.reduce((a, d) => a + (d.aiLinesAdded || 0) + (d.aiLinesDeleted || 0), 0);
-  const prev30Ai = prev30.reduce((a, d) => a + (d.aiLinesAdded || 0) + (d.aiLinesDeleted || 0), 0);
-  const aiTrendPct = prev30Ai > 0 ? ((last30Ai - prev30Ai) / prev30Ai * 100).toFixed(0) : '—';
-  const aiTrendUp = last30Ai >= prev30Ai;
-  const last30Total = last30.reduce((a, d) => a + (d.totalLinesAdded || 0) + (d.totalLinesDeleted || 0), 0);
-  const prev30Total = prev30.reduce((a, d) => a + (d.totalLinesAdded || 0) + (d.totalLinesDeleted || 0), 0);
-  const totalTrendPct = prev30Total > 0 ? ((last30Total - prev30Total) / prev30Total * 100).toFixed(0) : '—';
-  const totalTrendUp = last30Total >= prev30Total;
-
-  document.getElementById('sectionLoc').innerHTML = `
-    <div class="section-title">Lines of Code: AI vs Manual</div>
-    <div class="stat-row">
-      <div class="card card-accent">
-        <div class="stat-label">Total Lines Modified</div>
-        <div class="stat-value">${fmtNum(totalModified)}</div>
-        <div class="stat-sub">${totalTrendUp ? '&#9650;' : '&#9660;'} ${totalTrendPct}% vs prev month</div>
-      </div>
-      <div class="card">
-        <div class="stat-label">AI-generated</div>
-        <div class="stat-value stat-accent">${fmtNum(aiTotal)}</div>
-        <div class="stat-sub">${aiTrendUp ? '&#9650;' : '&#9660;'} ${aiTrendPct}% vs prev month</div>
-        <div class="stat-bar"><div class="stat-bar-fill" style="width:${pct(aiTotal)}%;background:var(--blue)"></div></div>
-      </div>
-      <div class="card">
-        <div class="stat-label">Manual</div>
-        <div class="stat-value stat-accent-pink">${fmtNum(manualTotal)}</div>
-        <div class="stat-sub">${pct(manualTotal)}% of total</div>
-        <div class="stat-bar"><div class="stat-bar-fill" style="width:${pct(manualTotal)}%;background:var(--pink)"></div></div>
-      </div>
-      <div class="card card-accent">
-        <div class="stat-label">AI Share</div>
-        <div class="stat-value stat-accent">${aiPctVal}%</div>
-        <div class="stat-sub">of all lines modified</div>
-      </div>
-    </div>
-    <div class="card" style="margin-bottom:16px">
-      <div class="usage-chart-header">
-        <div class="usage-chart-title">Distribution</div>
-      </div>
-      <div class="chart-wrap" style="height:120px"><canvas id="chartDistribution"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="usage-chart-header">
-        <div class="usage-chart-title">AI vs Manual</div>
-        <div class="usage-badge">Daily Lines</div>
-      </div>
-      <div class="chart-wrap"><canvas id="chartLines"></canvas></div>
-    </div>`;
-
-  // ----- Section 2: AI-first Developers -----
-  const allDevs = LEADERBOARD;
-  const maxAi = allDevs.length > 0 ? allDevs[0].aiLinesAdded + allDevs[0].aiLinesDeleted : 1;
-  const peakUsers = Math.max(...DATA.map(d => d.uniqueUsers || 0));
-  const avgUsers = Math.round(DATA.reduce((a, d) => a + (d.uniqueUsers || 0), 0) / DATA.length);
-  const avgAiShare = allDevs.length > 0 ? (allDevs.reduce((a, u) => a + u.aiShare, 0) / allDevs.length).toFixed(1) : '0';
-  const sortedShares = [...allDevs].map(u => u.aiShare).sort((a, b) => a - b);
-  const medianAiShare = sortedShares.length > 0
-    ? (sortedShares.length % 2 === 0
-      ? ((sortedShares[sortedShares.length/2 - 1] + sortedShares[sortedShares.length/2]) / 2).toFixed(1)
-      : sortedShares[Math.floor(sortedShares.length/2)].toFixed(1))
-    : '0';
-  const minAiShare = sortedShares.length > 0 ? sortedShares[0].toFixed(1) : '0';
-  const maxAiShare = sortedShares.length > 0 ? sortedShares[sortedShares.length - 1].toFixed(1) : '0';
-  const above50 = allDevs.filter(u => u.aiShare >= 50).length;
-  const topDev = allDevs[0] || {};
-  const highAiDev = [...allDevs].sort((a, b) => b.aiShare - a.aiShare)[0] || {};
-  const totalTabsAccepted = allDevs.reduce((a, u) => a + (u.totalTabsAccepted || 0), 0);
-  const totalTabsShown = allDevs.reduce((a, u) => a + (u.totalTabsShown || 0), 0);
-  const tabAcceptRate = totalTabsShown > 0 ? (totalTabsAccepted / totalTabsShown * 100).toFixed(1) : '0';
-
-  let lbRows = '';
-  const maxTotal = allDevs.length > 0 ? allDevs.reduce((mx, u) => Math.max(mx, u.totalLinesAdded + u.totalLinesDeleted), 0) : 1;
-  allDevs.forEach(u => {
-    const ai = u.aiLinesAdded + u.aiLinesDeleted;
-    const total = u.totalLinesAdded + u.totalLinesDeleted;
-    const manual = total - ai;
-    const barW = Math.max(2, total / maxTotal * 100);
-    const aiBarW = total > 0 ? (ai / total * 100) : 0;
-    const isTop = u.rank <= 3;
-    lbRows += `
-      <div class="dev-stat-row">
-        <div class="dev-stat-rank ${isTop ? 'top' : ''}">${u.rank}</div>
-        <div style="flex:1;min-width:0">
-          <div class="dev-stat-name">${u.name}</div>
-          ${u.favoriteModel ? `<div class="dev-stat-model">${u.favoriteModel}</div>` : ''}
-        </div>
-        <div class="dev-stat-bar-wrap">
-          <div class="dev-stat-bar-bg"><div class="dev-stat-bar-fill" style="width:${barW}%;background:linear-gradient(90deg,var(--blue) ${aiBarW}%,var(--pink) ${aiBarW}%)"></div></div>
-        </div>
-        <div class="dev-stat-val">${fmtNum(total)}</div>
-        <div class="dev-stat-val" style="color:var(--blue)">${fmtNum(ai)}</div>
-        <div class="dev-stat-val" style="color:var(--pink)">${fmtNum(manual)}</div>
-        <div class="dev-stat-val" style="color:var(--blue)">${u.aiShare}%</div>
-      </div>`;
-  });
-
-  document.getElementById('sectionDev').innerHTML = `
-    <div class="section-title">AI-first Developers</div>
-    <div class="stat-row">
-      <div class="card card-accent">
-        <div class="stat-label">Active Users</div>
-        <div class="stat-value">${allDevs.length}</div>
-        <div class="stat-sub">Peak: ${peakUsers} &middot; Avg: ${avgUsers}/day</div>
-      </div>
-      <div class="card">
-        <div class="stat-label">AI Share across developers</div>
-        <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px">
-          <div style="font-size:28px;font-weight:900;color:var(--blue);letter-spacing:-1px;line-height:1">${avgAiShare}%</div>
-          <div style="font-size:12px;font-weight:600;color:var(--gray-500)">avg</div>
-          <div style="font-size:20px;font-weight:800;color:var(--gray-700);letter-spacing:-0.5px">${medianAiShare}%</div>
-          <div style="font-size:12px;font-weight:600;color:var(--gray-500)">median</div>
-        </div>
-        <div style="display:flex;gap:16px;font-size:12px;font-weight:600;color:var(--gray-500);margin-bottom:8px">
-          <span>Min: ${minAiShare}%</span>
-          <span>Max: ${maxAiShare}%</span>
-          <span style="color:var(--blue)">${above50} of ${allDevs.length} devs &ge;50%</span>
-        </div>
-        <div class="stat-bar"><div class="stat-bar-fill" style="width:${avgAiShare}%;background:var(--blue)"></div></div>
-      </div>
-      <div class="card">
-        <div class="stat-label">Top Contributor</div>
-        <div class="stat-value" style="font-size:22px;letter-spacing:0">${topDev.name || '—'}</div>
-        <div class="stat-sub">${fmtNum((topDev.aiLinesAdded||0)+(topDev.aiLinesDeleted||0))} AI lines &middot; ${topDev.aiShare||0}%</div>
-      </div>
-      <div class="card">
-        <div class="stat-label">Tab Accept Rate</div>
-        <div class="stat-value">${tabAcceptRate}%</div>
-        <div class="stat-sub">${fmtNum(totalTabsAccepted)} of ${fmtNum(totalTabsShown)} suggestions</div>
-      </div>
-    </div>
-    <div class="two-col">
-      <div class="card">
-        <div class="usage-chart-header">
-          <div class="usage-chart-title">Active Users Over Time</div>
-          <div class="usage-badge">Daily</div>
-        </div>
-        <div class="chart-wrap" style="height:340px"><canvas id="chartUsers"></canvas></div>
-      </div>
-      <div class="card" style="overflow-y:auto;max-height:440px">
-        <div class="usage-chart-header" style="position:sticky;top:0;background:var(--white);padding-bottom:8px;z-index:1">
-          <div class="usage-chart-title">Leaderboard</div>
-          <div style="display:flex;gap:4px">
-            <div class="usage-badge">Total</div>
-            <div class="usage-badge">AI</div>
-            <div class="usage-badge">Manual</div>
-            <div class="usage-badge">AI %</div>
-          </div>
-        </div>
-        ${lbRows}
-      </div>
-    </div>`;
-
-  // ----- Section 3: AI Usage -----
-  const totalAgentReqs = sum('agentRequests');
-  const totalChatReqs = sum('chatRequests');
-  const totalReqs = totalAgentReqs + totalChatReqs;
-
-  document.getElementById('sectionUsage').innerHTML = `
-    <div class="section-title">AI Usage</div>
-    <div class="two-col">
-      <div class="card">
-        <div class="usage-chart-header">
-          <div class="usage-chart-title">AI Requests</div>
-          <div class="usage-badge">Agent + Chat</div>
-        </div>
-        <div style="display:flex;gap:32px;margin-bottom:16px">
-          <div>
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:4px">Total</div>
-            <div style="font-size:28px;font-weight:900;letter-spacing:-1px">${fmtNum(totalReqs)}</div>
-          </div>
-          <div>
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:4px">Agent</div>
-            <div style="font-size:20px;font-weight:800;color:var(--blue)">${fmtNum(totalAgentReqs)}</div>
-          </div>
-          <div>
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:4px">Chat</div>
-            <div style="font-size:20px;font-weight:800;color:#8B8EF5">${fmtNum(totalChatReqs)}</div>
-          </div>
-        </div>
-        <div class="chart-wrap" style="height:260px"><canvas id="chartRequests"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="usage-chart-header">
-          <div class="usage-chart-title">Added vs Deleted</div>
-          <div class="usage-badge">By Operation</div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px">
-          <div>
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:4px">Lines Added</div>
-            <div style="font-size:28px;font-weight:900;letter-spacing:-1px">${fmtNum(totalAdded)}</div>
-            <div style="font-size:12px;margin-top:2px"><span style="color:var(--blue)">AI: ${fmtNum(aiAdded)}</span> <span style="color:var(--gray-300)">&middot;</span> <span style="color:var(--pink)">Manual: ${fmtNum(totalAdded - aiAdded)}</span></div>
-          </div>
-          <div>
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:4px">Lines Deleted</div>
-            <div style="font-size:28px;font-weight:900;letter-spacing:-1px">${fmtNum(totalDeleted)}</div>
-            <div style="font-size:12px;margin-top:2px"><span style="color:var(--blue)">AI: ${fmtNum(aiDeleted)}</span> <span style="color:var(--gray-300)">&middot;</span> <span style="color:var(--pink)">Manual: ${fmtNum(totalDeleted - aiDeleted)}</span></div>
-          </div>
-        </div>
-        <div class="chart-wrap" style="height:260px"><canvas id="chartOps"></canvas></div>
-      </div>
-    </div>`;
-
-  // === CHARTS ===
-  const BLUE = '#3B3FE6'; const BLUE_A = 'rgba(59,63,230,0.2)';
-  const PINK = '#E84EA3'; const PINK_A = 'rgba(232,78,163,0.15)';
-  const GRAY = '#7B7FA3'; const GRAY_A = 'rgba(123,127,163,0.12)';
-  const GRID = 'rgba(226,228,238,0.6)'; const TICK = '#7B7FA3';
-
-  const scaleX = {
-    type: 'time', time: { unit: 'month', tooltipFormat: 'MMM d, yyyy' },
-    ticks: { color: TICK, font: { family: 'Inter', size: 10 }, maxRotation: 0 },
-    grid: { color: GRID, drawBorder: false },
-  };
-  const scaleY = {
-    ticks: { color: TICK, font: { family: 'Inter', size: 10 } },
-    grid: { color: GRID, drawBorder: false }, beginAtZero: true,
-  };
-  const tooltipOpts = {
-    backgroundColor: '#0D0F33', titleColor: '#fff', bodyColor: '#C8CBE0',
-    borderColor: '#2a2e5a', borderWidth: 1, cornerRadius: 10, padding: 12,
-    titleFont: { family: 'Inter', weight: '600' }, bodyFont: { family: 'Inter' },
-  };
-  const baseOpts = {
-    responsive: true, maintainAspectRatio: false,
-    interaction: { mode: 'index', intersect: false },
-    plugins: {
-      legend: { labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 14 } },
-      tooltip: tooltipOpts,
-    },
-    scales: { x: scaleX, y: scaleY },
-  };
-
-  // Chart: LOC Distribution (horizontal bar)
-  new Chart(document.getElementById('chartDistribution'), {
-    type: 'bar',
-    data: {
-      labels: ['Lines of Code'],
-      datasets: [
-        { label: 'AI Added',      data: [aiAdded],              backgroundColor: BLUE,      borderRadius: 3 },
-        { label: 'AI Deleted',     data: [aiDeleted],            backgroundColor: '#8B8EF5', borderRadius: 3 },
-        { label: 'Manual Added',   data: [totalAdded - aiAdded], backgroundColor: PINK,      borderRadius: 3 },
-        { label: 'Manual Deleted', data: [totalDeleted - aiDeleted], backgroundColor: '#F5A3D0', borderRadius: 3 },
-      ]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom', labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 20 } },
-        tooltip: { ...tooltipOpts, callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.x.toLocaleString()}` } },
-      },
-      scales: {
-        x: { stacked: true, grid: { color: GRID, drawBorder: false }, ticks: { color: TICK, font: { family: 'Inter', size: 10 }, callback: v => v >= 1000000 ? (v/1000000).toFixed(1)+'M' : v >= 1000 ? (v/1000).toFixed(0)+'k' : v } },
-        y: { stacked: true, display: false },
-      }
-    }
-  });
-
-  // Chart: Lines of Code (AI vs Manual + AI%)
-  const aiLineData = DATA.map(d => d.aiLinesAdded + d.aiLinesDeleted);
-  const manLineData = DATA.map(d => d.nonAiLinesAdded + d.nonAiLinesDeleted);
+  // ===== UTILITIES =====
+  function fmtNum(n) {
+    if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, '') + 'k';
+    return n.toString();
+  }
+  function fmtDate(s) {
+    return new Date(s + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
   function linReg(arr) {
-    const n = arr.length, xm = (n - 1) / 2, ym = arr.reduce((a, v) => a + v, 0) / n;
+    const n = arr.length; if (n < 2) return arr.slice();
+    const xm = (n - 1) / 2, ym = arr.reduce((a, v) => a + v, 0) / n;
     let num = 0, den = 0;
     for (let i = 0; i < n; i++) { num += (i - xm) * (arr[i] - ym); den += (i - xm) * (i - xm); }
     const s = den ? num / den : 0, b = ym - s * xm;
     return arr.map((_, i) => +(b + s * i).toFixed(1));
   }
-  const aiLineTrend = linReg(aiLineData);
-  const manLineTrend = linReg(manLineData);
 
-  new Chart(document.getElementById('chartLines'), {
-    type: 'line',
-    data: {
-      labels: dates,
-      datasets: [
-        { label: 'AI', data: aiLineData, backgroundColor: BLUE_A, borderColor: BLUE, borderWidth: 2, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8, order: 2, yAxisID: 'y' },
-        { label: 'Manual', data: manLineData, backgroundColor: PINK_A, borderColor: PINK, borderWidth: 1.5, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8, order: 3, yAxisID: 'y' },
-        { label: 'AI Trend', data: aiLineTrend, borderColor: BLUE, borderWidth: 2, borderDash: [6, 4], fill: false, pointRadius: 0, pointHitRadius: 0, tension: 0, order: 1, yAxisID: 'y' },
-        { label: 'Manual Trend', data: manLineTrend, borderColor: PINK, borderWidth: 2, borderDash: [6, 4], fill: false, pointRadius: 0, pointHitRadius: 0, tension: 0, order: 1, yAxisID: 'y' },
-        { label: 'AI %', data: DATA.map(d => { const t = d.totalLinesAdded + d.totalLinesDeleted; return t > 0 ? ((d.aiLinesAdded + d.aiLinesDeleted) / t * 100) : null; }), borderColor: '#8B8EF5', borderWidth: 2, borderDash: [5, 3], fill: false, tension: 0.3, pointRadius: 0, pointHitRadius: 8, order: 1, yAxisID: 'yPct' }
-      ]
-    },
-    options: {
-      ...baseOpts,
-      plugins: { ...baseOpts.plugins, tooltip: { ...tooltipOpts, callbacks: { label: ctx => ctx.dataset.yAxisID === 'yPct' ? `AI %: ${ctx.parsed.y?.toFixed(1)}%` : `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}` } } },
-      scales: {
-        x: scaleX,
-        y: { ...scaleY, stacked: true, position: 'left', title: { display: true, text: 'Lines', color: TICK, font: { family: 'Inter', size: 10 } } },
-        yPct: { position: 'right', min: 0, max: 100, ticks: { color: '#8B8EF5', font: { family: 'Inter', size: 10 }, callback: v => v + '%' }, grid: { drawOnChartArea: false }, title: { display: true, text: 'AI %', color: '#8B8EF5', font: { family: 'Inter', size: 10 } } }
-      }
+  // ===== AGGREGATION (from compact R rows) =====
+  function aggregateDaily(rows) {
+    const daily = {};
+    rows.forEach(r => {
+      const day = r.d;
+      if (!daily[day]) daily[day] = {
+        date: day, totalLinesAdded: 0, totalLinesDeleted: 0,
+        aiLinesAdded: 0, aiLinesDeleted: 0,
+        nonAiLinesAdded: 0, nonAiLinesDeleted: 0,
+        totalTabsShown: 0, totalTabsAccepted: 0,
+        totalApplies: 0, totalAccepts: 0,
+        agentRequests: 0, chatRequests: 0,
+        _users: new Set(),
+      };
+      const d = daily[day];
+      d.totalLinesAdded += r.la; d.totalLinesDeleted += r.ld;
+      d.aiLinesAdded += r.aa; d.aiLinesDeleted += r.ad;
+      d.totalTabsShown += r.ts; d.totalTabsAccepted += r.ta;
+      d.totalApplies += r.ap; d.totalAccepts += r.ac;
+      d.agentRequests += r.ar; d.chatRequests += r.cr;
+      if (r.x) d._users.add(r.e);
+    });
+    return Object.keys(daily).sort().map(day => {
+      const d = daily[day];
+      d.nonAiLinesAdded = Math.max(0, d.totalLinesAdded - d.aiLinesAdded);
+      d.nonAiLinesDeleted = Math.max(0, d.totalLinesDeleted - d.aiLinesDeleted);
+      d.uniqueUsers = d._users.size;
+      delete d._users;
+      return d;
+    });
+  }
+
+  function aggregateLeaderboard(rows) {
+    const users = {};
+    rows.forEach(r => {
+      if (!r.e) return;
+      if (!users[r.e]) users[r.e] = {
+        email: r.e, totalLinesAdded: 0, totalLinesDeleted: 0,
+        aiLinesAdded: 0, aiLinesDeleted: 0,
+        totalTabsAccepted: 0, totalTabsShown: 0,
+        totalApplies: 0, totalAccepts: 0,
+        agentRequests: 0, chatRequests: 0,
+        activeDays: 0, _models: {},
+      };
+      const u = users[r.e];
+      u.totalLinesAdded += r.la; u.totalLinesDeleted += r.ld;
+      u.aiLinesAdded += r.aa; u.aiLinesDeleted += r.ad;
+      u.totalTabsShown += r.ts; u.totalTabsAccepted += r.ta;
+      u.totalApplies += r.ap; u.totalAccepts += r.ac;
+      u.agentRequests += r.ar; u.chatRequests += r.cr;
+      if (r.x) u.activeDays++;
+      if (r.m && r.m !== 'default') u._models[r.m] = (u._models[r.m] || 0) + 1;
+    });
+    const result = [];
+    Object.values(users).forEach(u => {
+      const total = u.totalLinesAdded + u.totalLinesDeleted;
+      const ai = u.aiLinesAdded + u.aiLinesDeleted;
+      const models = u._models; delete u._models;
+      const keys = Object.keys(models);
+      u.favoriteModel = keys.length ? keys.reduce((a, b) => models[a] >= models[b] ? a : b) : '';
+      u.name = u.email.split('@')[0].replace(/\./g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      u.aiShare = total > 0 ? Math.round(ai / total * 1000) / 10 : 0;
+      if (u.activeDays > 0) result.push(u);
+    });
+    result.sort((a, b) => (b.aiLinesAdded + b.aiLinesDeleted) - (a.aiLinesAdded + a.aiLinesDeleted));
+    result.forEach((u, i) => u.rank = i + 1);
+    return result;
+  }
+
+  function aggregateUserMonthly(rows) {
+    const buckets = {};
+    rows.forEach(r => {
+      if (!r.e || r.d.length < 7) return;
+      const month = r.d.slice(0, 7);
+      const key = r.e + '|' + month;
+      if (!buckets[key]) buckets[key] = { e: r.e, month, la: 0, ld: 0, aa: 0, ad: 0, ar: 0, cr: 0 };
+      const b = buckets[key];
+      b.la += r.la; b.ld += r.ld; b.aa += r.aa; b.ad += r.ad; b.ar += r.ar; b.cr += r.cr;
+    });
+    const result = {};
+    Object.values(buckets).sort((a, b) => a.month.localeCompare(b.month)).forEach(b => {
+      const name = b.e.split('@')[0].replace(/\./g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      if (!result[name]) result[name] = [];
+      const total = b.la + b.ld, ai = b.aa + b.ad;
+      result[name].push({
+        month: b.month, totalLines: total, aiLines: ai,
+        manualLines: total - ai,
+        aiShare: total > 0 ? Math.round(ai / total * 1000) / 10 : 0,
+        agentRequests: b.ar, chatRequests: b.cr,
+      });
+    });
+    return result;
+  }
+
+  // ===== CHART CONSTANTS =====
+  const BLUE = '#3B3FE6', BLUE_A = 'rgba(59,63,230,0.2)';
+  const PINK = '#E84EA3', PINK_A = 'rgba(232,78,163,0.15)';
+  const GRID = 'rgba(226,228,238,0.6)', TICK = '#7B7FA3';
+  const tooltipOpts = {
+    backgroundColor: '#0D0F33', titleColor: '#fff', bodyColor: '#C8CBE0',
+    borderColor: '#2a2e5a', borderWidth: 1, cornerRadius: 10, padding: 12,
+    titleFont: { family: 'Inter', weight: '600' }, bodyFont: { family: 'Inter' },
+  };
+  function scaleX() {
+    return { type: 'time', time: { unit: 'month', tooltipFormat: 'MMM d, yyyy' },
+      ticks: { color: TICK, font: { family: 'Inter', size: 10 }, maxRotation: 0 },
+      grid: { color: GRID, drawBorder: false } };
+  }
+  function scaleY(extra) {
+    return Object.assign({ ticks: { color: TICK, font: { family: 'Inter', size: 10 } },
+      grid: { color: GRID, drawBorder: false }, beginAtZero: true }, extra || {});
+  }
+  function baseOpts(extra) {
+    return Object.assign({
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 14 } },
+        tooltip: tooltipOpts,
+      },
+      scales: { x: scaleX(), y: scaleY() },
+    }, extra || {});
+  }
+
+  // ===== CHART INSTANCE TRACKER =====
+  const charts = {};
+  function makeChart(id, cfg) {
+    if (charts[id]) charts[id].destroy();
+    charts[id] = new Chart(document.getElementById(id), cfg);
+    return charts[id];
+  }
+
+  // ===== FILTER STATE =====
+  const allDays = [...new Set(R.map(r => r.d))].sort();
+  const allEmails = [...new Set(R.map(r => r.e))].sort();
+  const emailToName = {};
+  allEmails.forEach(e => {
+    emailToName[e] = e.split('@')[0].replace(/\./g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  });
+  const globalStart = allDays[0];
+  const globalEnd = allDays[allDays.length - 1];
+
+  let filterStart = globalStart;
+  let filterEnd = globalEnd;
+  let filterDev = '';
+
+  // populate developer dropdown
+  const devSelect = document.getElementById('fDev');
+  Object.entries(emailToName)
+    .sort((a, b) => a[1].localeCompare(b[1]))
+    .forEach(([email, name]) => {
+      const opt = document.createElement('option');
+      opt.value = email;
+      opt.textContent = name;
+      devSelect.appendChild(opt);
+    });
+
+  document.getElementById('fStart').value = globalStart;
+  document.getElementById('fEnd').value = globalEnd;
+
+  // ===== RENDER FUNCTIONS =====
+  function renderAll() {
+    let filtered = R;
+    if (filterStart) filtered = filtered.filter(r => r.d >= filterStart);
+    if (filterEnd) filtered = filtered.filter(r => r.d <= filterEnd);
+    if (filterDev) filtered = filtered.filter(r => r.e === filterDev);
+
+    const data = aggregateDaily(filtered);
+    const leaderboard = aggregateLeaderboard(filtered);
+    const userMonthly = aggregateUserMonthly(filtered);
+
+    if (data.length === 0) {
+      ['sectionLoc', 'sectionDev', 'sectionUsage', 'sectionTable'].forEach(id =>
+        document.getElementById(id).innerHTML = '<div class="card" style="text-align:center;padding:40px;color:var(--gray-500)">No data for selected filters</div>'
+      );
+      return;
     }
-  });
 
-  // Chart: Active Users + trend line
-  const usersData = DATA.map(d => d.uniqueUsers || 0);
-  const usersN = usersData.length;
-  const usersXmean = (usersN - 1) / 2;
-  const usersYmean = usersData.reduce((a, v) => a + v, 0) / usersN;
-  let usersNum = 0, usersDen = 0;
-  for (let i = 0; i < usersN; i++) {
-    usersNum += (i - usersXmean) * (usersData[i] - usersYmean);
-    usersDen += (i - usersXmean) * (i - usersXmean);
+    const dates = data.map(d => d.date);
+    const isFiltered = filterStart !== globalStart || filterEnd !== globalEnd || filterDev;
+    document.getElementById('dateRange').textContent = `${fmtDate(dates[0])} — ${fmtDate(dates[dates.length - 1])}`;
+
+    const tag = document.getElementById('fTag');
+    if (isFiltered) {
+      const parts = [];
+      if (filterDev) parts.push(emailToName[filterDev]);
+      if (filterStart !== globalStart || filterEnd !== globalEnd) parts.push(`${filterStart} → ${filterEnd}`);
+      tag.textContent = parts.join(' · ');
+      tag.style.display = '';
+    } else { tag.style.display = 'none'; }
+
+    renderSection1(data, dates);
+    renderSection2(data, dates, leaderboard);
+    renderSection3(data, dates);
+    renderSection4(leaderboard, userMonthly);
   }
-  const usersSlope = usersDen !== 0 ? usersNum / usersDen : 0;
-  const usersIntercept = usersYmean - usersSlope * usersXmean;
-  const usersTrend = usersData.map((_, i) => +(usersIntercept + usersSlope * i).toFixed(1));
 
-  new Chart(document.getElementById('chartUsers'), {
-    type: 'line',
-    data: { labels: dates, datasets: [
-      { label: 'Users', data: DATA.map(d => d.uniqueUsers || null), borderColor: BLUE, backgroundColor: BLUE_A, borderWidth: 2, fill: true, tension: 0.35, pointRadius: 0, pointHitRadius: 8 },
-      { label: 'Trend', data: usersTrend, borderColor: '#E84EA3', borderWidth: 2, borderDash: [6, 4], fill: false, pointRadius: 0, pointHitRadius: 0, tension: 0 }
-    ] },
-    options: { ...baseOpts, plugins: { ...baseOpts.plugins, legend: { labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 14 } } }, scales: { x: scaleX, y: { ...scaleY, title: { display: false } } } }
-  });
+  // ----- Section 1: LOC -----
+  function renderSection1(data, dates) {
+    const sum = k => data.reduce((a, d) => a + (d[k] || 0), 0);
+    const totalAdded = sum('totalLinesAdded'), totalDeleted = sum('totalLinesDeleted');
+    const totalModified = totalAdded + totalDeleted;
+    const aiAdded = sum('aiLinesAdded'), aiDeleted = sum('aiLinesDeleted');
+    const aiTotal = aiAdded + aiDeleted;
+    const manualTotal = totalModified - aiTotal;
+    const pct = v => totalModified > 0 ? (v / totalModified * 100).toFixed(1) : '0';
+    const aiPctVal = pct(aiTotal);
 
-  // Chart: AI Requests
-  const reqsData = DATA.map(d => (d.agentRequests || 0) + (d.chatRequests || 0));
-  const reqsN = reqsData.length;
-  const reqsXmean = (reqsN - 1) / 2;
-  const reqsYmean = reqsData.reduce((a, v) => a + v, 0) / reqsN;
-  let reqsNum = 0, reqsDen = 0;
-  for (let i = 0; i < reqsN; i++) {
-    reqsNum += (i - reqsXmean) * (reqsData[i] - reqsYmean);
-    reqsDen += (i - reqsXmean) * (i - reqsXmean);
-  }
-  const reqsSlope = reqsDen !== 0 ? reqsNum / reqsDen : 0;
-  const reqsIntercept = reqsYmean - reqsSlope * reqsXmean;
-  const reqsTrend = reqsData.map((_, i) => +(reqsIntercept + reqsSlope * i).toFixed(1));
+    const last30 = data.slice(-30), prev30 = data.slice(-60, -30);
+    const l30ai = last30.reduce((a, d) => a + (d.aiLinesAdded || 0) + (d.aiLinesDeleted || 0), 0);
+    const p30ai = prev30.reduce((a, d) => a + (d.aiLinesAdded || 0) + (d.aiLinesDeleted || 0), 0);
+    const aiTrendPct = p30ai > 0 ? ((l30ai - p30ai) / p30ai * 100).toFixed(0) : '—';
+    const aiUp = l30ai >= p30ai;
+    const l30t = last30.reduce((a, d) => a + (d.totalLinesAdded || 0) + (d.totalLinesDeleted || 0), 0);
+    const p30t = prev30.reduce((a, d) => a + (d.totalLinesAdded || 0) + (d.totalLinesDeleted || 0), 0);
+    const totTrendPct = p30t > 0 ? ((l30t - p30t) / p30t * 100).toFixed(0) : '—';
+    const totUp = l30t >= p30t;
 
-  new Chart(document.getElementById('chartRequests'), {
-    type: 'bar',
-    data: {
-      labels: dates,
-      datasets: [
-        { label: 'Agent', data: DATA.map(d => d.agentRequests), backgroundColor: 'rgba(59,63,230,0.5)', borderColor: BLUE, borderWidth: 1, borderRadius: 2, stack: 'reqs' },
-        { label: 'Chat', data: DATA.map(d => d.chatRequests), backgroundColor: 'rgba(139,142,245,0.4)', borderColor: '#8B8EF5', borderWidth: 1, borderRadius: 2, stack: 'reqs' },
-        { label: 'Trend', data: reqsTrend, type: 'line', borderColor: '#E84EA3', borderWidth: 2, borderDash: [6, 4], fill: false, pointRadius: 0, pointHitRadius: 0, tension: 0, stack: false }
-      ]
-    },
-    options: { ...baseOpts, scales: { x: { ...scaleX, stacked: true }, y: { ...scaleY, stacked: true } } }
-  });
-
-  // Chart: By Operation (Added vs Deleted)
-  new Chart(document.getElementById('chartOps'), {
-    type: 'line',
-    data: {
-      labels: dates,
-      datasets: [
-        { label: 'Added', data: DATA.map(d => d.totalLinesAdded), borderColor: '#1A1D3B', backgroundColor: 'rgba(26,29,59,0.12)', borderWidth: 2, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8 },
-        { label: 'Deleted', data: DATA.map(d => d.totalLinesDeleted), borderColor: '#7B7FA3', backgroundColor: 'rgba(123,127,163,0.1)', borderWidth: 1.5, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8 }
-      ]
-    },
-    options: { ...baseOpts, scales: { x: scaleX, y: scaleY } }
-  });
-
-  // ----- Section 4: Sortable Detail Table -----
-  const COLS = [
-    { key: 'name',        label: 'Developer',      fmt: v => v,             align: 'left',  cls: '' },
-    { key: 'totalLines',  label: 'Total Lines',     fmt: v => v.toLocaleString(), align: 'right', cls: '' },
-    { key: 'aiLines',     label: 'AI Lines',        fmt: v => v.toLocaleString(), align: 'right', cls: 'col-ai' },
-    { key: 'manualLines', label: 'Manual Lines',    fmt: v => v.toLocaleString(), align: 'right', cls: 'col-manual' },
-    { key: 'aiShare',     label: 'AI %',            fmt: v => v + '%',       align: 'right', cls: 'col-ai col-pct' },
-    { key: 'aiAdded',     label: 'AI Added',        fmt: v => v.toLocaleString(), align: 'right', cls: 'col-ai' },
-    { key: 'aiDeleted',   label: 'AI Deleted',      fmt: v => v.toLocaleString(), align: 'right', cls: 'col-ai' },
-    { key: 'manualAdded', label: 'Manual Added',    fmt: v => v.toLocaleString(), align: 'right', cls: 'col-manual' },
-    { key: 'manualDel',   label: 'Manual Deleted',  fmt: v => v.toLocaleString(), align: 'right', cls: 'col-manual' },
-    { key: 'activeDays',  label: 'Active Days',     fmt: v => v,             align: 'right', cls: '' },
-    { key: 'agentReqs',   label: 'Agent Reqs',      fmt: v => v.toLocaleString(), align: 'right', cls: 'col-ai' },
-    { key: 'chatReqs',    label: 'Chat Reqs',       fmt: v => v.toLocaleString(), align: 'right', cls: '' },
-  ];
-
-  const tableRows = LEADERBOARD.map(u => ({
-    name: u.name,
-    totalLines: u.totalLinesAdded + u.totalLinesDeleted,
-    aiLines: u.aiLinesAdded + u.aiLinesDeleted,
-    manualLines: (u.totalLinesAdded + u.totalLinesDeleted) - (u.aiLinesAdded + u.aiLinesDeleted),
-    aiShare: u.aiShare,
-    aiAdded: u.aiLinesAdded,
-    aiDeleted: u.aiLinesDeleted,
-    manualAdded: u.totalLinesAdded - u.aiLinesAdded,
-    manualDel: u.totalLinesDeleted - u.aiLinesDeleted,
-    activeDays: u.activeDays,
-    agentReqs: u.agentRequests || 0,
-    chatReqs: u.chatRequests || 0,
-  }));
-
-  let sortCol = 'aiLines';
-  let sortDir = 'desc';
-  let searchTerm = '';
-
-  document.getElementById('sectionTable').innerHTML = `
-    <div class="section-title">Developer Detail</div>
-    <div class="card" style="padding:20px 24px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
-        <div class="usage-chart-title">All Developers <span id="tblCount" style="font-weight:400;color:var(--gray-500);font-size:13px">(${tableRows.length})</span></div>
-        <input type="text" class="tbl-search" placeholder="Search developer..." id="tblSearch">
-      </div>
-      <div class="tbl-wrap">
-        <table class="sort-table">
-          <thead id="tblHead"></thead>
-          <tbody id="tblBody"></tbody>
-        </table>
-      </div>
-      <div class="dev-detail" id="devDetail">
-        <div class="dev-detail-header">
-          <div class="dev-detail-name" id="devDetailName"></div>
-          <button class="dev-detail-close" id="devDetailClose">Close</button>
+    document.getElementById('sectionLoc').innerHTML = `
+      <div class="section-title">Lines of Code: AI vs Manual</div>
+      <div class="stat-row">
+        <div class="card card-accent">
+          <div class="stat-label">Total Lines Modified</div>
+          <div class="stat-value">${fmtNum(totalModified)}</div>
+          <div class="stat-sub">${totUp ? '&#9650;' : '&#9660;'} ${totTrendPct}% vs prev month</div>
         </div>
-        <div class="dev-detail-stats" id="devDetailStats"></div>
-        <div class="card" style="padding:16px 20px">
-          <div class="usage-chart-header">
-            <div class="usage-chart-title">Monthly Lines of Code</div>
-            <div style="display:flex;gap:4px"><div class="usage-badge">AI</div><div class="usage-badge" style="color:var(--pink)">Manual</div></div>
-          </div>
-          <div class="chart-wrap" style="height:260px"><canvas id="devChartLines"></canvas></div>
+        <div class="card">
+          <div class="stat-label">AI-generated</div>
+          <div class="stat-value stat-accent">${fmtNum(aiTotal)}</div>
+          <div class="stat-sub">${aiUp ? '&#9650;' : '&#9660;'} ${aiTrendPct}% vs prev month</div>
+          <div class="stat-bar"><div class="stat-bar-fill" style="width:${pct(aiTotal)}%;background:var(--blue)"></div></div>
+        </div>
+        <div class="card">
+          <div class="stat-label">Manual</div>
+          <div class="stat-value stat-accent-pink">${fmtNum(manualTotal)}</div>
+          <div class="stat-sub">${pct(manualTotal)}% of total</div>
+          <div class="stat-bar"><div class="stat-bar-fill" style="width:${pct(manualTotal)}%;background:var(--pink)"></div></div>
+        </div>
+        <div class="card card-accent">
+          <div class="stat-label">AI Share</div>
+          <div class="stat-value stat-accent">${aiPctVal}%</div>
+          <div class="stat-sub">of all lines modified</div>
         </div>
       </div>
-    </div>`;
+      <div class="card" style="margin-bottom:16px">
+        <div class="usage-chart-header"><div class="usage-chart-title">Distribution</div></div>
+        <div class="chart-wrap" style="height:120px"><canvas id="chartDistribution"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="usage-chart-header">
+          <div class="usage-chart-title">AI vs Manual</div>
+          <div class="usage-badge">Daily Lines</div>
+        </div>
+        <div class="chart-wrap"><canvas id="chartLines"></canvas></div>
+      </div>`;
 
-  let devLinesChart = null;
-  let selectedDev = null;
-
-  function showDevDetail(name) {
-    const months = USER_MONTHLY[name];
-    if (!months || months.length === 0) return;
-
-    selectedDev = name;
-    const panel = document.getElementById('devDetail');
-    panel.classList.add('open');
-    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-    document.getElementById('devDetailName').textContent = name;
-
-    const totAi = months.reduce((a, m) => a + m.aiLines, 0);
-    const totManual = months.reduce((a, m) => a + m.manualLines, 0);
-    const totAll = totAi + totManual;
-    const avgShare = totAll > 0 ? (totAi / totAll * 100).toFixed(1) : '0';
-    const totReqs = months.reduce((a, m) => a + m.agentRequests + m.chatRequests, 0);
-    document.getElementById('devDetailStats').innerHTML = `
-      <div><div class="dev-detail-stat-label">Total Lines</div><div class="dev-detail-stat-val">${totAll.toLocaleString()}</div></div>
-      <div><div class="dev-detail-stat-label">AI Lines</div><div class="dev-detail-stat-val" style="color:var(--blue)">${totAi.toLocaleString()}</div></div>
-      <div><div class="dev-detail-stat-label">Manual Lines</div><div class="dev-detail-stat-val" style="color:var(--pink)">${totManual.toLocaleString()}</div></div>
-      <div><div class="dev-detail-stat-label">AI Share</div><div class="dev-detail-stat-val" style="color:var(--blue)">${avgShare}%</div></div>
-      <div><div class="dev-detail-stat-label">Total Requests</div><div class="dev-detail-stat-val">${totReqs.toLocaleString()}</div></div>`;
-
-    const labels = months.map(m => m.month);
-    const aiD = months.map(m => m.aiLines);
-    const manD = months.map(m => m.manualLines);
-
-    if (devLinesChart) devLinesChart.destroy();
-
-    devLinesChart = new Chart(document.getElementById('devChartLines'), {
+    makeChart('chartDistribution', {
       type: 'bar',
       data: {
-        labels,
+        labels: ['Lines of Code'],
         datasets: [
-          { label: 'AI', data: aiD, backgroundColor: 'rgba(59,63,230,0.6)', borderColor: BLUE, borderWidth: 1, borderRadius: 3, stack: 'loc' },
-          { label: 'Manual', data: manD, backgroundColor: 'rgba(232,78,163,0.35)', borderColor: PINK, borderWidth: 1, borderRadius: 3, stack: 'loc' },
+          { label: 'AI Added', data: [aiAdded], backgroundColor: BLUE, borderRadius: 3 },
+          { label: 'AI Deleted', data: [aiDeleted], backgroundColor: '#8B8EF5', borderRadius: 3 },
+          { label: 'Manual Added', data: [totalAdded - aiAdded], backgroundColor: PINK, borderRadius: 3 },
+          { label: 'Manual Deleted', data: [totalDeleted - aiDeleted], backgroundColor: '#F5A3D0', borderRadius: 3 },
         ]
       },
       options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 14 } }, tooltip: tooltipOpts },
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 20 } },
+          tooltip: { ...tooltipOpts, callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.x.toLocaleString()}` } },
+        },
         scales: {
-          x: { stacked: true, ticks: { color: TICK, font: { family: 'Inter', size: 10 } }, grid: { color: GRID, drawBorder: false } },
-          y: { stacked: true, ticks: { color: TICK, font: { family: 'Inter', size: 10 } }, grid: { color: GRID, drawBorder: false }, beginAtZero: true }
+          x: { stacked: true, grid: { color: GRID, drawBorder: false }, ticks: { color: TICK, font: { family: 'Inter', size: 10 }, callback: v => v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v >= 1e3 ? (v/1e3).toFixed(0)+'k' : v } },
+          y: { stacked: true, display: false },
         }
       }
     });
 
-    document.querySelectorAll('.sort-table tbody tr').forEach(tr => tr.classList.remove('active-row'));
-    document.querySelectorAll('.sort-table tbody tr').forEach(tr => {
-      if (tr.children[0]?.textContent === name) tr.classList.add('active-row');
+    const aiLD = data.map(d => d.aiLinesAdded + d.aiLinesDeleted);
+    const manLD = data.map(d => d.nonAiLinesAdded + d.nonAiLinesDeleted);
+    const aiLT = linReg(aiLD), manLT = linReg(manLD);
+    makeChart('chartLines', {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [
+          { label: 'AI', data: aiLD, backgroundColor: BLUE_A, borderColor: BLUE, borderWidth: 2, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8, order: 2, yAxisID: 'y' },
+          { label: 'Manual', data: manLD, backgroundColor: PINK_A, borderColor: PINK, borderWidth: 1.5, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8, order: 3, yAxisID: 'y' },
+          { label: 'AI Trend', data: aiLT, borderColor: BLUE, borderWidth: 2, borderDash: [6, 4], fill: false, pointRadius: 0, pointHitRadius: 0, tension: 0, order: 1, yAxisID: 'y' },
+          { label: 'Manual Trend', data: manLT, borderColor: PINK, borderWidth: 2, borderDash: [6, 4], fill: false, pointRadius: 0, pointHitRadius: 0, tension: 0, order: 1, yAxisID: 'y' },
+          { label: 'AI %', data: data.map(d => { const t = d.totalLinesAdded + d.totalLinesDeleted; return t > 0 ? ((d.aiLinesAdded + d.aiLinesDeleted) / t * 100) : null; }), borderColor: '#8B8EF5', borderWidth: 2, borderDash: [5, 3], fill: false, tension: 0.3, pointRadius: 0, pointHitRadius: 8, order: 1, yAxisID: 'yPct' }
+        ]
+      },
+      options: {
+        ...baseOpts(),
+        plugins: { ...baseOpts().plugins, tooltip: { ...tooltipOpts, callbacks: { label: ctx => ctx.dataset.yAxisID === 'yPct' ? `AI %: ${ctx.parsed.y?.toFixed(1)}%` : `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}` } } },
+        scales: {
+          x: scaleX(),
+          y: scaleY({ stacked: true, position: 'left', title: { display: true, text: 'Lines', color: TICK, font: { family: 'Inter', size: 10 } } }),
+          yPct: { position: 'right', min: 0, max: 100, ticks: { color: '#8B8EF5', font: { family: 'Inter', size: 10 }, callback: v => v + '%' }, grid: { drawOnChartArea: false }, title: { display: true, text: 'AI %', color: '#8B8EF5', font: { family: 'Inter', size: 10 } } }
+        }
+      }
     });
   }
 
-  function hideDevDetail() {
+  // ----- Section 2: Developers -----
+  function renderSection2(data, dates, leaderboard) {
+    const allDevs = leaderboard;
+    const peakUsers = Math.max(...data.map(d => d.uniqueUsers || 0));
+    const avgUsers = Math.round(data.reduce((a, d) => a + (d.uniqueUsers || 0), 0) / data.length);
+    const avgAiShare = allDevs.length ? (allDevs.reduce((a, u) => a + u.aiShare, 0) / allDevs.length).toFixed(1) : '0';
+    const sorted = [...allDevs].map(u => u.aiShare).sort((a, b) => a - b);
+    const medianAiShare = sorted.length > 0
+      ? (sorted.length % 2 === 0 ? ((sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2).toFixed(1) : sorted[Math.floor(sorted.length / 2)].toFixed(1))
+      : '0';
+    const minAiShare = sorted.length ? sorted[0].toFixed(1) : '0';
+    const maxAiShare = sorted.length ? sorted[sorted.length - 1].toFixed(1) : '0';
+    const above50 = allDevs.filter(u => u.aiShare >= 50).length;
+    const topDev = allDevs[0] || {};
+    const totalTA = allDevs.reduce((a, u) => a + (u.totalTabsAccepted || 0), 0);
+    const totalTS = allDevs.reduce((a, u) => a + (u.totalTabsShown || 0), 0);
+    const tabRate = totalTS > 0 ? (totalTA / totalTS * 100).toFixed(1) : '0';
+
+    const maxTotal = allDevs.length ? allDevs.reduce((mx, u) => Math.max(mx, u.totalLinesAdded + u.totalLinesDeleted), 0) : 1;
+    let lbRows = '';
+    allDevs.forEach(u => {
+      const ai = u.aiLinesAdded + u.aiLinesDeleted;
+      const total = u.totalLinesAdded + u.totalLinesDeleted;
+      const manual = total - ai;
+      const barW = Math.max(2, total / maxTotal * 100);
+      const aiBarW = total > 0 ? (ai / total * 100) : 0;
+      const isTop = u.rank <= 3;
+      lbRows += `<div class="dev-stat-row">
+        <div class="dev-stat-rank ${isTop ? 'top' : ''}">${u.rank}</div>
+        <div style="flex:1;min-width:0">
+          <div class="dev-stat-name">${u.name}</div>
+          ${u.favoriteModel ? `<div class="dev-stat-model">${u.favoriteModel}</div>` : ''}
+        </div>
+        <div class="dev-stat-bar-wrap"><div class="dev-stat-bar-bg"><div class="dev-stat-bar-fill" style="width:${barW}%;background:linear-gradient(90deg,var(--blue) ${aiBarW}%,var(--pink) ${aiBarW}%)"></div></div></div>
+        <div class="dev-stat-val">${fmtNum(total)}</div>
+        <div class="dev-stat-val" style="color:var(--blue)">${fmtNum(ai)}</div>
+        <div class="dev-stat-val" style="color:var(--pink)">${fmtNum(manual)}</div>
+        <div class="dev-stat-val" style="color:var(--blue)">${u.aiShare}%</div>
+      </div>`;
+    });
+
+    document.getElementById('sectionDev').innerHTML = `
+      <div class="section-title">AI-first Developers</div>
+      <div class="stat-row">
+        <div class="card card-accent">
+          <div class="stat-label">Active Users</div>
+          <div class="stat-value">${allDevs.length}</div>
+          <div class="stat-sub">Peak: ${peakUsers} &middot; Avg: ${avgUsers}/day</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">AI Share across developers</div>
+          <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px">
+            <div style="font-size:28px;font-weight:900;color:var(--blue);letter-spacing:-1px;line-height:1">${avgAiShare}%</div>
+            <div style="font-size:12px;font-weight:600;color:var(--gray-500)">avg</div>
+            <div style="font-size:20px;font-weight:800;color:var(--gray-700);letter-spacing:-0.5px">${medianAiShare}%</div>
+            <div style="font-size:12px;font-weight:600;color:var(--gray-500)">median</div>
+          </div>
+          <div style="display:flex;gap:16px;font-size:12px;font-weight:600;color:var(--gray-500);margin-bottom:8px">
+            <span>Min: ${minAiShare}%</span>
+            <span>Max: ${maxAiShare}%</span>
+            <span style="color:var(--blue)">${above50} of ${allDevs.length} devs &ge;50%</span>
+          </div>
+          <div class="stat-bar"><div class="stat-bar-fill" style="width:${avgAiShare}%;background:var(--blue)"></div></div>
+        </div>
+        <div class="card">
+          <div class="stat-label">Top Contributor</div>
+          <div class="stat-value" style="font-size:22px;letter-spacing:0">${topDev.name || '—'}</div>
+          <div class="stat-sub">${fmtNum((topDev.aiLinesAdded || 0) + (topDev.aiLinesDeleted || 0))} AI lines &middot; ${topDev.aiShare || 0}%</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">Tab Accept Rate</div>
+          <div class="stat-value">${tabRate}%</div>
+          <div class="stat-sub">${fmtNum(totalTA)} of ${fmtNum(totalTS)} suggestions</div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="usage-chart-header">
+            <div class="usage-chart-title">Active Users Over Time</div>
+            <div class="usage-badge">Daily</div>
+          </div>
+          <div class="chart-wrap" style="height:340px"><canvas id="chartUsers"></canvas></div>
+        </div>
+        <div class="card" style="overflow-y:auto;max-height:440px">
+          <div class="usage-chart-header" style="position:sticky;top:0;background:var(--white);padding-bottom:8px;z-index:1">
+            <div class="usage-chart-title">Leaderboard</div>
+            <div style="display:flex;gap:4px">
+              <div class="usage-badge">Total</div>
+              <div class="usage-badge">AI</div>
+              <div class="usage-badge">Manual</div>
+              <div class="usage-badge">AI %</div>
+            </div>
+          </div>
+          ${lbRows}
+        </div>
+      </div>`;
+
+    const usersD = data.map(d => d.uniqueUsers || 0);
+    const usersT = linReg(usersD);
+    makeChart('chartUsers', {
+      type: 'line',
+      data: { labels: dates, datasets: [
+        { label: 'Users', data: usersD, borderColor: BLUE, backgroundColor: BLUE_A, borderWidth: 2, fill: true, tension: 0.35, pointRadius: 0, pointHitRadius: 8 },
+        { label: 'Trend', data: usersT, borderColor: PINK, borderWidth: 2, borderDash: [6, 4], fill: false, pointRadius: 0, pointHitRadius: 0, tension: 0 }
+      ] },
+      options: baseOpts({ scales: { x: scaleX(), y: scaleY() } })
+    });
+  }
+
+  // ----- Section 3: AI Usage -----
+  function renderSection3(data, dates) {
+    const sum = k => data.reduce((a, d) => a + (d[k] || 0), 0);
+    const totalAdded = sum('totalLinesAdded'), totalDeleted = sum('totalLinesDeleted');
+    const aiAdded = sum('aiLinesAdded'), aiDeleted = sum('aiLinesDeleted');
+    const totalAgent = sum('agentRequests'), totalChat = sum('chatRequests');
+    const totalReqs = totalAgent + totalChat;
+
+    document.getElementById('sectionUsage').innerHTML = `
+      <div class="section-title">AI Usage</div>
+      <div class="two-col">
+        <div class="card">
+          <div class="usage-chart-header">
+            <div class="usage-chart-title">AI Requests</div>
+            <div class="usage-badge">Agent + Chat</div>
+          </div>
+          <div style="display:flex;gap:32px;margin-bottom:16px">
+            <div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:4px">Total</div>
+              <div style="font-size:28px;font-weight:900;letter-spacing:-1px">${fmtNum(totalReqs)}</div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:4px">Agent</div>
+              <div style="font-size:20px;font-weight:800;color:var(--blue)">${fmtNum(totalAgent)}</div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:4px">Chat</div>
+              <div style="font-size:20px;font-weight:800;color:#8B8EF5">${fmtNum(totalChat)}</div>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:260px"><canvas id="chartRequests"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="usage-chart-header">
+            <div class="usage-chart-title">Added vs Deleted</div>
+            <div class="usage-badge">By Operation</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px">
+            <div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:4px">Lines Added</div>
+              <div style="font-size:28px;font-weight:900;letter-spacing:-1px">${fmtNum(totalAdded)}</div>
+              <div style="font-size:12px;margin-top:2px"><span style="color:var(--blue)">AI: ${fmtNum(aiAdded)}</span> <span style="color:var(--gray-300)">&middot;</span> <span style="color:var(--pink)">Manual: ${fmtNum(totalAdded - aiAdded)}</span></div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:4px">Lines Deleted</div>
+              <div style="font-size:28px;font-weight:900;letter-spacing:-1px">${fmtNum(totalDeleted)}</div>
+              <div style="font-size:12px;margin-top:2px"><span style="color:var(--blue)">AI: ${fmtNum(aiDeleted)}</span> <span style="color:var(--gray-300)">&middot;</span> <span style="color:var(--pink)">Manual: ${fmtNum(totalDeleted - aiDeleted)}</span></div>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:260px"><canvas id="chartOps"></canvas></div>
+        </div>
+      </div>`;
+
+    const reqsD = data.map(d => (d.agentRequests || 0) + (d.chatRequests || 0));
+    const reqsT = linReg(reqsD);
+    makeChart('chartRequests', {
+      type: 'bar',
+      data: {
+        labels: dates,
+        datasets: [
+          { label: 'Agent', data: data.map(d => d.agentRequests), backgroundColor: 'rgba(59,63,230,0.5)', borderColor: BLUE, borderWidth: 1, borderRadius: 2, stack: 'reqs' },
+          { label: 'Chat', data: data.map(d => d.chatRequests), backgroundColor: 'rgba(139,142,245,0.4)', borderColor: '#8B8EF5', borderWidth: 1, borderRadius: 2, stack: 'reqs' },
+          { label: 'Trend', data: reqsT, type: 'line', borderColor: PINK, borderWidth: 2, borderDash: [6, 4], fill: false, pointRadius: 0, pointHitRadius: 0, tension: 0, stack: false }
+        ]
+      },
+      options: baseOpts({ scales: { x: { ...scaleX(), stacked: true }, y: scaleY({ stacked: true }) } })
+    });
+
+    makeChart('chartOps', {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [
+          { label: 'Added', data: data.map(d => d.totalLinesAdded), borderColor: '#1A1D3B', backgroundColor: 'rgba(26,29,59,0.12)', borderWidth: 2, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8 },
+          { label: 'Deleted', data: data.map(d => d.totalLinesDeleted), borderColor: '#7B7FA3', backgroundColor: 'rgba(123,127,163,0.1)', borderWidth: 1.5, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8 }
+        ]
+      },
+      options: baseOpts()
+    });
+  }
+
+  // ----- Section 4: Table -----
+  const COLS = [
+    { key: 'name', label: 'Developer', fmt: v => v, cls: '' },
+    { key: 'totalLines', label: 'Total Lines', fmt: v => v.toLocaleString(), cls: '' },
+    { key: 'aiLines', label: 'AI Lines', fmt: v => v.toLocaleString(), cls: 'col-ai' },
+    { key: 'manualLines', label: 'Manual Lines', fmt: v => v.toLocaleString(), cls: 'col-manual' },
+    { key: 'aiShare', label: 'AI %', fmt: v => v + '%', cls: 'col-ai col-pct' },
+    { key: 'aiAdded', label: 'AI Added', fmt: v => v.toLocaleString(), cls: 'col-ai' },
+    { key: 'aiDeleted', label: 'AI Deleted', fmt: v => v.toLocaleString(), cls: 'col-ai' },
+    { key: 'manualAdded', label: 'Manual Added', fmt: v => v.toLocaleString(), cls: 'col-manual' },
+    { key: 'manualDel', label: 'Manual Deleted', fmt: v => v.toLocaleString(), cls: 'col-manual' },
+    { key: 'activeDays', label: 'Active Days', fmt: v => v, cls: '' },
+    { key: 'agentReqs', label: 'Agent Reqs', fmt: v => v.toLocaleString(), cls: 'col-ai' },
+    { key: 'chatReqs', label: 'Chat Reqs', fmt: v => v.toLocaleString(), cls: '' },
+  ];
+
+  let sortCol = 'aiLines', sortDir = 'desc', searchTerm = '', selectedDev = null;
+
+  function renderSection4(leaderboard, userMonthly) {
+    const tableRows = leaderboard.map(u => ({
+      name: u.name,
+      totalLines: u.totalLinesAdded + u.totalLinesDeleted,
+      aiLines: u.aiLinesAdded + u.aiLinesDeleted,
+      manualLines: (u.totalLinesAdded + u.totalLinesDeleted) - (u.aiLinesAdded + u.aiLinesDeleted),
+      aiShare: u.aiShare,
+      aiAdded: u.aiLinesAdded,
+      aiDeleted: u.aiLinesDeleted,
+      manualAdded: u.totalLinesAdded - u.aiLinesAdded,
+      manualDel: u.totalLinesDeleted - u.aiLinesDeleted,
+      activeDays: u.activeDays,
+      agentReqs: u.agentRequests || 0,
+      chatReqs: u.chatRequests || 0,
+    }));
+
+    const el = document.getElementById('sectionTable');
+    el.innerHTML = `
+      <div class="section-title">Developer Detail</div>
+      <div class="card" style="padding:20px 24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+          <div class="usage-chart-title">All Developers <span id="tblCount" style="font-weight:400;color:var(--gray-500);font-size:13px">(${tableRows.length})</span></div>
+          <input type="text" class="tbl-search" placeholder="Search developer..." id="tblSearch">
+        </div>
+        <div class="tbl-wrap">
+          <table class="sort-table"><thead id="tblHead"></thead><tbody id="tblBody"></tbody></table>
+        </div>
+        <div class="dev-detail" id="devDetail">
+          <div class="dev-detail-header">
+            <div class="dev-detail-name" id="devDetailName"></div>
+            <button class="dev-detail-close" id="devDetailClose">Close</button>
+          </div>
+          <div class="dev-detail-stats" id="devDetailStats"></div>
+          <div class="card" style="padding:16px 20px">
+            <div class="usage-chart-header">
+              <div class="usage-chart-title">Monthly Lines of Code</div>
+              <div style="display:flex;gap:4px"><div class="usage-badge">AI</div><div class="usage-badge" style="color:var(--pink)">Manual</div></div>
+            </div>
+            <div class="chart-wrap" style="height:260px"><canvas id="devChartLines"></canvas></div>
+          </div>
+        </div>
+      </div>`;
+
     selectedDev = null;
-    document.getElementById('devDetail').classList.remove('open');
-    if (devLinesChart) { devLinesChart.destroy(); devLinesChart = null; }
-    document.querySelectorAll('.sort-table tbody tr').forEach(tr => tr.classList.remove('active-row'));
-  }
 
-  document.getElementById('devDetailClose').addEventListener('click', hideDevDetail);
+    function showDevDetail(name) {
+      const months = userMonthly[name];
+      if (!months || !months.length) return;
+      selectedDev = name;
+      document.getElementById('devDetail').classList.add('open');
+      document.getElementById('devDetail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      document.getElementById('devDetailName').textContent = name;
 
-  function updateTable() {
-    const filtered = searchTerm
-      ? tableRows.filter(r => r.name.toLowerCase().includes(searchTerm))
-      : tableRows;
-    const sorted = [...filtered].sort((a, b) => {
-      const av = a[sortCol], bv = b[sortCol];
-      if (typeof av === 'string') return sortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
-      return sortDir === 'asc' ? av - bv : bv - av;
-    });
+      const totAi = months.reduce((a, m) => a + m.aiLines, 0);
+      const totMan = months.reduce((a, m) => a + m.manualLines, 0);
+      const totAll = totAi + totMan;
+      const avgS = totAll > 0 ? (totAi / totAll * 100).toFixed(1) : '0';
+      const totR = months.reduce((a, m) => a + m.agentRequests + m.chatRequests, 0);
+      document.getElementById('devDetailStats').innerHTML = `
+        <div><div class="dev-detail-stat-label">Total Lines</div><div class="dev-detail-stat-val">${totAll.toLocaleString()}</div></div>
+        <div><div class="dev-detail-stat-label">AI Lines</div><div class="dev-detail-stat-val" style="color:var(--blue)">${totAi.toLocaleString()}</div></div>
+        <div><div class="dev-detail-stat-label">Manual Lines</div><div class="dev-detail-stat-val" style="color:var(--pink)">${totMan.toLocaleString()}</div></div>
+        <div><div class="dev-detail-stat-label">AI Share</div><div class="dev-detail-stat-val" style="color:var(--blue)">${avgS}%</div></div>
+        <div><div class="dev-detail-stat-label">Total Requests</div><div class="dev-detail-stat-val">${totR.toLocaleString()}</div></div>`;
 
-    document.getElementById('tblCount').textContent = `(${sorted.length})`;
-
-    document.getElementById('tblHead').innerHTML = '<tr>' + COLS.map(c => {
-      const active = sortCol === c.key;
-      const arrow = active ? (sortDir === 'asc' ? '&#9650;' : '&#9660;') : '';
-      const cls = active ? `sorted-${sortDir}` : '';
-      return `<th class="${cls}" data-col="${c.key}">${c.label}<span class="sort-arrow">${arrow}</span></th>`;
-    }).join('') + '</tr>';
-
-    document.getElementById('tblBody').innerHTML = sorted.map(r =>
-      `<tr data-dev="${r.name}" class="${selectedDev === r.name ? 'active-row' : ''}">` + COLS.map(c =>
-        `<td class="${c.cls}">${c.fmt(r[c.key])}</td>`
-      ).join('') + '</tr>'
-    ).join('');
-
-    document.querySelectorAll('.sort-table th').forEach(th => {
-      th.addEventListener('click', () => {
-        const col = th.dataset.col;
-        if (sortCol === col) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
-        else { sortCol = col; sortDir = 'desc'; }
-        updateTable();
+      makeChart('devChartLines', {
+        type: 'bar',
+        data: {
+          labels: months.map(m => m.month),
+          datasets: [
+            { label: 'AI', data: months.map(m => m.aiLines), backgroundColor: 'rgba(59,63,230,0.6)', borderColor: BLUE, borderWidth: 1, borderRadius: 3, stack: 'loc' },
+            { label: 'Manual', data: months.map(m => m.manualLines), backgroundColor: 'rgba(232,78,163,0.35)', borderColor: PINK, borderWidth: 1, borderRadius: 3, stack: 'loc' },
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 14 } }, tooltip: tooltipOpts },
+          scales: {
+            x: { stacked: true, ticks: { color: TICK, font: { family: 'Inter', size: 10 } }, grid: { color: GRID, drawBorder: false } },
+            y: scaleY({ stacked: true })
+          }
+        }
       });
-    });
 
-    document.querySelectorAll('.sort-table tbody tr').forEach(tr => {
-      tr.addEventListener('click', () => {
-        const name = tr.dataset.dev;
-        if (selectedDev === name) { hideDevDetail(); }
-        else { showDevDetail(name); }
+      document.querySelectorAll('.sort-table tbody tr').forEach(tr => {
+        tr.classList.toggle('active-row', tr.dataset.dev === name);
       });
-    });
-  }
+    }
 
-  document.getElementById('tblSearch').addEventListener('input', e => {
-    searchTerm = e.target.value.toLowerCase();
+    function hideDevDetail() {
+      selectedDev = null;
+      document.getElementById('devDetail').classList.remove('open');
+      if (charts.devChartLines) { charts.devChartLines.destroy(); delete charts.devChartLines; }
+      document.querySelectorAll('.sort-table tbody tr').forEach(tr => tr.classList.remove('active-row'));
+    }
+
+    document.getElementById('devDetailClose').addEventListener('click', hideDevDetail);
+
+    function updateTable() {
+      const filtered = searchTerm ? tableRows.filter(r => r.name.toLowerCase().includes(searchTerm)) : tableRows;
+      const sorted = [...filtered].sort((a, b) => {
+        const av = a[sortCol], bv = b[sortCol];
+        if (typeof av === 'string') return sortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+        return sortDir === 'asc' ? av - bv : bv - av;
+      });
+      document.getElementById('tblCount').textContent = `(${sorted.length})`;
+      document.getElementById('tblHead').innerHTML = '<tr>' + COLS.map(c => {
+        const active = sortCol === c.key;
+        const arrow = active ? (sortDir === 'asc' ? '&#9650;' : '&#9660;') : '';
+        return `<th class="${active ? 'sorted-' + sortDir : ''}" data-col="${c.key}">${c.label}<span class="sort-arrow">${arrow}</span></th>`;
+      }).join('') + '</tr>';
+      document.getElementById('tblBody').innerHTML = sorted.map(r =>
+        `<tr data-dev="${r.name}" class="${selectedDev === r.name ? 'active-row' : ''}">` +
+        COLS.map(c => `<td class="${c.cls}">${c.fmt(r[c.key])}</td>`).join('') + '</tr>'
+      ).join('');
+      document.querySelectorAll('.sort-table th').forEach(th => {
+        th.addEventListener('click', () => {
+          const col = th.dataset.col;
+          if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+          else { sortCol = col; sortDir = 'desc'; }
+          updateTable();
+        });
+      });
+      document.querySelectorAll('.sort-table tbody tr').forEach(tr => {
+        tr.addEventListener('click', () => {
+          const name = tr.dataset.dev;
+          if (selectedDev === name) hideDevDetail(); else showDevDetail(name);
+        });
+      });
+    }
+
+    document.getElementById('tblSearch').addEventListener('input', e => {
+      searchTerm = e.target.value.toLowerCase();
+      updateTable();
+    });
     updateTable();
+  }
+
+  // ===== FILTER HANDLERS =====
+  document.getElementById('fStart').addEventListener('change', e => { filterStart = e.target.value || globalStart; renderAll(); });
+  document.getElementById('fEnd').addEventListener('change', e => { filterEnd = e.target.value || globalEnd; renderAll(); });
+  document.getElementById('fDev').addEventListener('change', e => { filterDev = e.target.value; renderAll(); });
+  document.getElementById('fReset').addEventListener('click', () => {
+    filterStart = globalStart; filterEnd = globalEnd; filterDev = '';
+    document.getElementById('fStart').value = globalStart;
+    document.getElementById('fEnd').value = globalEnd;
+    document.getElementById('fDev').value = '';
+    renderAll();
   });
 
-  updateTable();
-
-  // --- Helpers ---
-  function sum(key) { return DATA.reduce((a, d) => a + (d[key] || 0), 0); }
-  function fmtNum(n) {
-    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
-    if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
-    return n.toString();
-  }
-  function fmtDate(str) {
-    const d = new Date(str + 'T00:00:00');
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  }
+  // ===== INITIAL RENDER =====
+  renderAll();
 })();
 </script>
 </body>
