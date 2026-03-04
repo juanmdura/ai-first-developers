@@ -213,14 +213,6 @@ def write_data_js(daily_data, leaderboard, output_path):
         f.writelines(lines)
 
 
-def write_csv(daily_data, output_path):
-    """Write a CSV file with the aggregated data."""
-    fields = list(daily_data[0].keys())
-    with open(output_path, "w") as f:
-        f.write(",".join(fields) + "\n")
-        for row in daily_data:
-            f.write(",".join(str(row[k]) for k in fields) + "\n")
-
 
 def main():
     start = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_START
@@ -251,15 +243,9 @@ def main():
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     js_path = os.path.join(script_dir, "data.js")
-    data_dir = os.path.join(script_dir, "data")
-    os.makedirs(data_dir, exist_ok=True)
-    csv_path = os.path.join(data_dir, "api_usage_data.csv")
 
     write_data_js(daily_data, leaderboard, js_path)
     print(f"Wrote {js_path}")
-
-    write_csv(daily_data, csv_path)
-    print(f"Wrote {csv_path}")
 
     total_added = sum(d["totalLinesAdded"] for d in daily_data)
     total_ai = sum(d["aiLinesAdded"] for d in daily_data)

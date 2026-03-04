@@ -31,7 +31,7 @@ pip install -r requirements.txt
 python fetch_data.py
 ```
 
-This generates `data.js` (consumed by the dashboard) and `data/api_usage_data.csv` (raw export).
+This generates `data.js` consumed by the dashboard.
 
 4. Open the dashboard:
 
@@ -48,9 +48,7 @@ python -m http.server 8080
 ├── fetch_data.py       # Fetches data from Cursor Admin API
 ├── requirements.txt    # Python dependencies
 ├── .env.example        # Environment variable template
-├── .gitignore
-└── data/
-    └── api_usage_data.csv   # Generated CSV export
+└── .gitignore
 ```
 
 ## Data source
