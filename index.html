@@ -41,67 +41,64 @@
     .topbar {
       background: var(--blue);
       padding: 0 40px;
-      height: 68px;
+      min-height: 68px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      padding-top: 12px;
+      padding-bottom: 12px;
     }
-    .topbar-brand { display: flex; align-items: center; gap: 14px; }
+    .topbar-brand { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
     .topbar-logo { font-weight: 900; font-size: 22px; color: var(--white); letter-spacing: -0.5px; }
     .topbar-sep { width: 1px; height: 24px; background: rgba(255,255,255,0.3); }
     .topbar-subtitle { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.85); }
-    .topbar-meta { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.7); }
 
-    /* --- Filter bar --- */
-    .filter-bar {
-      background: var(--white);
-      border-bottom: 1px solid var(--gray-200);
-      padding: 10px 40px;
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      flex-wrap: wrap;
+    .topbar-filters { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .topbar-filter-group { display: flex; align-items: center; gap: 6px; }
+    .topbar-filter-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; color: rgba(255,255,255,0.55);
     }
-    .filter-group { display: flex; align-items: center; gap: 8px; }
-    .filter-label {
-      font-size: 11px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.8px; color: var(--gray-500);
-    }
-    .filter-input {
-      padding: 6px 12px;
-      border: 1px solid var(--gray-200);
+    .topbar-filter-input {
+      padding: 5px 10px;
+      border: 1px solid rgba(255,255,255,0.25);
       border-radius: 8px;
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      color: var(--gray-900);
-      background: var(--white);
-      outline: none;
-      transition: border-color .15s;
-    }
-    .filter-input:focus { border-color: var(--blue); }
-    select.filter-input { min-width: 180px; cursor: pointer; }
-    .filter-reset {
-      background: none;
-      border: 1px solid var(--gray-200);
-      border-radius: 8px;
-      padding: 6px 16px;
       font-family: 'Inter', sans-serif;
       font-size: 12px;
+      color: var(--white);
+      background: rgba(255,255,255,0.12);
+      outline: none;
+      transition: border-color .15s, background .15s;
+    }
+    .topbar-filter-input:focus { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.18); }
+    .topbar-filter-input::placeholder { color: rgba(255,255,255,0.45); }
+    select.topbar-filter-input { min-width: 160px; cursor: pointer; }
+    select.topbar-filter-input option { color: var(--gray-900); background: var(--white); }
+    input[type="date"].topbar-filter-input::-webkit-calendar-picker-indicator { filter: invert(1); }
+    .topbar-filter-reset {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 8px;
+      padding: 5px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
       font-weight: 600;
-      color: var(--gray-500);
+      color: rgba(255,255,255,0.7);
       cursor: pointer;
       transition: all .15s;
     }
-    .filter-reset:hover { border-color: var(--blue); color: var(--blue); }
-    .filter-active-tag {
-      font-size: 11px; font-weight: 700; color: var(--blue);
-      background: rgba(59,63,230,0.08); border-radius: 6px;
-      padding: 4px 10px;
+    .topbar-filter-reset:hover { background: rgba(255,255,255,0.22); color: var(--white); }
+    .topbar-filter-tag {
+      font-size: 10px; font-weight: 700; color: var(--white);
+      background: rgba(255,255,255,0.18); border-radius: 6px;
+      padding: 3px 10px;
     }
 
     .container { max-width: 1280px; margin: 0 auto; padding: 32px 40px 56px; }
     @media (max-width: 768px) {
-      .topbar, .filter-bar { padding-left: 20px; padding-right: 20px; }
+      .topbar { padding-left: 20px; padding-right: 20px; }
       .container { padding: 20px 20px 40px; }
     }
 
@@ -305,27 +302,25 @@
     <div class="topbar-sep"></div>
     <div class="topbar-subtitle">AI-first Developers</div>
   </div>
-  <div class="topbar-meta" id="dateRange"></div>
+  <div class="topbar-filters">
+    <div class="topbar-filter-group">
+      <label class="topbar-filter-label">From</label>
+      <input type="date" id="fStart" class="topbar-filter-input">
+    </div>
+    <div class="topbar-filter-group">
+      <label class="topbar-filter-label">To</label>
+      <input type="date" id="fEnd" class="topbar-filter-input">
+    </div>
+    <div class="topbar-filter-group">
+      <label class="topbar-filter-label">Developer</label>
+      <select id="fDev" class="topbar-filter-input">
+        <option value="">All Developers</option>
+      </select>
+    </div>
+    <button class="topbar-filter-reset" id="fReset">Reset</button>
+    <span class="topbar-filter-tag" id="fTag" style="display:none"></span>
+  </div>
 </nav>
-
-<div class="filter-bar">
-  <div class="filter-group">
-    <label class="filter-label">From</label>
-    <input type="date" id="fStart" class="filter-input">
-  </div>
-  <div class="filter-group">
-    <label class="filter-label">To</label>
-    <input type="date" id="fEnd" class="filter-input">
-  </div>
-  <div class="filter-group">
-    <label class="filter-label">Developer</label>
-    <select id="fDev" class="filter-input">
-      <option value="">All Developers</option>
-    </select>
-  </div>
-  <button class="filter-reset" id="fReset">Reset</button>
-  <span class="filter-active-tag" id="fTag" style="display:none"></span>
-</div>
 
 <div class="container">
   <div class="section" id="sectionLoc"></div>
@@ -555,7 +550,6 @@
 
     const dates = data.map(d => d.date);
     const isFiltered = filterStart !== globalStart || filterEnd !== globalEnd || filterDev;
-    document.getElementById('dateRange').textContent = `${fmtDate(dates[0])} — ${fmtDate(dates[dates.length - 1])}`;
 
     const tag = document.getElementById('fTag');
     if (isFiltered) {
@@ -665,8 +659,8 @@
         datasets: [
           { label: 'AI', data: aiLD, backgroundColor: BLUE_A, borderColor: BLUE, borderWidth: 2, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8, order: 2, yAxisID: 'y' },
           { label: 'Manual', data: manLD, backgroundColor: PINK_A, borderColor: PINK, borderWidth: 1.5, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8, order: 3, yAxisID: 'y' },
-          { label: 'AI Trend', data: aiLT, borderColor: BLUE, borderWidth: 2, borderDash: [6, 4], fill: false, pointRadius: 0, pointHitRadius: 0, tension: 0, order: 1, yAxisID: 'y' },
-          { label: 'Manual Trend', data: manLT, borderColor: PINK, borderWidth: 2, borderDash: [6, 4], fill: false, pointRadius: 0, pointHitRadius: 0, tension: 0, order: 1, yAxisID: 'y' },
+          { label: 'AI Trend', data: aiLT, borderColor: BLUE, borderWidth: 2, borderDash: [6, 4], fill: false, pointRadius: 0, pointHitRadius: 0, tension: 0, order: 1, yAxisID: 'yTrend' },
+          { label: 'Manual Trend', data: manLT, borderColor: PINK, borderWidth: 2, borderDash: [6, 4], fill: false, pointRadius: 0, pointHitRadius: 0, tension: 0, order: 1, yAxisID: 'yTrend' },
           { label: 'AI %', data: data.map(d => { const t = d.totalLinesAdded + d.totalLinesDeleted; return t > 0 ? ((d.aiLinesAdded + d.aiLinesDeleted) / t * 100) : null; }), borderColor: '#8B8EF5', borderWidth: 2, borderDash: [5, 3], fill: false, tension: 0.3, pointRadius: 0, pointHitRadius: 8, order: 1, yAxisID: 'yPct' }
         ]
       },
@@ -676,6 +670,7 @@
         scales: {
           x: scaleX(),
           y: scaleY({ stacked: true, position: 'left', title: { display: true, text: 'Lines', color: TICK, font: { family: 'Inter', size: 10 } } }),
+          yTrend: { display: false, beginAtZero: true },
           yPct: { position: 'right', min: 0, max: 100, ticks: { color: '#8B8EF5', font: { family: 'Inter', size: 10 }, callback: v => v + '%' }, grid: { drawOnChartArea: false }, title: { display: true, text: 'AI %', color: '#8B8EF5', font: { family: 'Inter', size: 10 } } }
         }
       }
