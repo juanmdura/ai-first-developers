@@ -170,6 +170,27 @@
       font-family: 'Inter', sans-serif; font-size: 13px; outline: none; transition: border-color .15s;
     }
     .tbl-search:focus { border-color: var(--blue); }
+    .sort-table tr { cursor: pointer; }
+    .sort-table tr.active-row td { background: var(--gray-100); }
+    .sort-table tr.active-row td:first-child { color: var(--blue); }
+    .dev-detail { margin-top: 16px; display: none; }
+    .dev-detail.open { display: block; }
+    .dev-detail-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px; flex-wrap: wrap; gap: 8px;
+    }
+    .dev-detail-name { font-size: 17px; font-weight: 800; color: var(--gray-900); }
+    .dev-detail-close {
+      background: none; border: 1px solid var(--gray-200); border-radius: 8px;
+      padding: 4px 14px; font-family: 'Inter', sans-serif; font-size: 12px;
+      font-weight: 600; color: var(--gray-500); cursor: pointer; transition: all .15s;
+    }
+    .dev-detail-close:hover { border-color: var(--blue); color: var(--blue); }
+    .dev-detail-stats {
+      display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 16px;
+    }
+    .dev-detail-stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--gray-500); }
+    .dev-detail-stat-val { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
   </style>
 </head>
 <body>
@@ -631,7 +652,87 @@
           <tbody id="tblBody"></tbody>
         </table>
       </div>
+      <div class="dev-detail" id="devDetail">
+        <div class="dev-detail-header">
+          <div class="dev-detail-name" id="devDetailName"></div>
+          <button class="dev-detail-close" id="devDetailClose">Close</button>
+        </div>
+        <div class="dev-detail-stats" id="devDetailStats"></div>
+        <div class="card" style="padding:16px 20px">
+          <div class="usage-chart-header">
+            <div class="usage-chart-title">Monthly Lines of Code</div>
+            <div style="display:flex;gap:4px"><div class="usage-badge">AI</div><div class="usage-badge" style="color:var(--pink)">Manual</div></div>
+          </div>
+          <div class="chart-wrap" style="height:260px"><canvas id="devChartLines"></canvas></div>
+        </div>
+      </div>
     </div>`;
+
+  let devLinesChart = null;
+  let selectedDev = null;
+
+  function showDevDetail(name) {
+    const months = USER_MONTHLY[name];
+    if (!months || months.length === 0) return;
+
+    selectedDev = name;
+    const panel = document.getElementById('devDetail');
+    panel.classList.add('open');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    document.getElementById('devDetailName').textContent = name;
+
+    const totAi = months.reduce((a, m) => a + m.aiLines, 0);
+    const totManual = months.reduce((a, m) => a + m.manualLines, 0);
+    const totAll = totAi + totManual;
+    const avgShare = totAll > 0 ? (totAi / totAll * 100).toFixed(1) : '0';
+    const totReqs = months.reduce((a, m) => a + m.agentRequests + m.chatRequests, 0);
+    document.getElementById('devDetailStats').innerHTML = `
+      <div><div class="dev-detail-stat-label">Total Lines</div><div class="dev-detail-stat-val">${totAll.toLocaleString()}</div></div>
+      <div><div class="dev-detail-stat-label">AI Lines</div><div class="dev-detail-stat-val" style="color:var(--blue)">${totAi.toLocaleString()}</div></div>
+      <div><div class="dev-detail-stat-label">Manual Lines</div><div class="dev-detail-stat-val" style="color:var(--pink)">${totManual.toLocaleString()}</div></div>
+      <div><div class="dev-detail-stat-label">AI Share</div><div class="dev-detail-stat-val" style="color:var(--blue)">${avgShare}%</div></div>
+      <div><div class="dev-detail-stat-label">Total Requests</div><div class="dev-detail-stat-val">${totReqs.toLocaleString()}</div></div>`;
+
+    const labels = months.map(m => m.month);
+    const aiD = months.map(m => m.aiLines);
+    const manD = months.map(m => m.manualLines);
+
+    if (devLinesChart) devLinesChart.destroy();
+
+    devLinesChart = new Chart(document.getElementById('devChartLines'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'AI', data: aiD, backgroundColor: 'rgba(59,63,230,0.6)', borderColor: BLUE, borderWidth: 1, borderRadius: 3, stack: 'loc' },
+          { label: 'Manual', data: manD, backgroundColor: 'rgba(232,78,163,0.35)', borderColor: PINK, borderWidth: 1, borderRadius: 3, stack: 'loc' },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 14 } }, tooltip: tooltipOpts },
+        scales: {
+          x: { stacked: true, ticks: { color: TICK, font: { family: 'Inter', size: 10 } }, grid: { color: GRID, drawBorder: false } },
+          y: { stacked: true, ticks: { color: TICK, font: { family: 'Inter', size: 10 } }, grid: { color: GRID, drawBorder: false }, beginAtZero: true }
+        }
+      }
+    });
+
+    document.querySelectorAll('.sort-table tbody tr').forEach(tr => tr.classList.remove('active-row'));
+    document.querySelectorAll('.sort-table tbody tr').forEach(tr => {
+      if (tr.children[0]?.textContent === name) tr.classList.add('active-row');
+    });
+  }
+
+  function hideDevDetail() {
+    selectedDev = null;
+    document.getElementById('devDetail').classList.remove('open');
+    if (devLinesChart) { devLinesChart.destroy(); devLinesChart = null; }
+    document.querySelectorAll('.sort-table tbody tr').forEach(tr => tr.classList.remove('active-row'));
+  }
+
+  document.getElementById('devDetailClose').addEventListener('click', hideDevDetail);
 
   function updateTable() {
     const filtered = searchTerm
@@ -653,7 +754,7 @@
     }).join('') + '</tr>';
 
     document.getElementById('tblBody').innerHTML = sorted.map(r =>
-      '<tr>' + COLS.map(c =>
+      `<tr data-dev="${r.name}" class="${selectedDev === r.name ? 'active-row' : ''}">` + COLS.map(c =>
         `<td class="${c.cls}">${c.fmt(r[c.key])}</td>`
       ).join('') + '</tr>'
     ).join('');
@@ -664,6 +765,14 @@
         if (sortCol === col) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
         else { sortCol = col; sortDir = 'desc'; }
         updateTable();
+      });
+    });
+
+    document.querySelectorAll('.sort-table tbody tr').forEach(tr => {
+      tr.addEventListener('click', () => {
+        const name = tr.dataset.dev;
+        if (selectedDev === name) { hideDevDetail(); }
+        else { showDevDetail(name); }
       });
     });
   }

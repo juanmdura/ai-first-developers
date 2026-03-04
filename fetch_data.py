@@ -197,7 +197,52 @@ def aggregate_leaderboard(rows):
     return result
 
 
-def write_data_js(daily_data, leaderboard, output_path):
+def aggregate_user_monthly(rows):
+    """Aggregate raw rows into per-user monthly buckets."""
+    buckets = {}
+    for r in rows:
+        email = r.get("email", "")
+        if not email:
+            continue
+        day = r.get("day", "")
+        if len(day) < 7:
+            continue
+        month = day[:7]  # "YYYY-MM"
+        key = (email, month)
+        if key not in buckets:
+            buckets[key] = {
+                "totalLinesAdded": 0, "totalLinesDeleted": 0,
+                "aiLinesAdded": 0, "aiLinesDeleted": 0,
+                "agentRequests": 0, "chatRequests": 0,
+            }
+        b = buckets[key]
+        b["totalLinesAdded"] += r.get("totalLinesAdded", 0)
+        b["totalLinesDeleted"] += r.get("totalLinesDeleted", 0)
+        b["aiLinesAdded"] += r.get("acceptedLinesAdded", 0)
+        b["aiLinesDeleted"] += r.get("acceptedLinesDeleted", 0)
+        b["agentRequests"] += r.get("agentRequests", 0)
+        b["chatRequests"] += r.get("chatRequests", 0)
+
+    result = {}
+    for (email, month), b in sorted(buckets.items()):
+        name = email.split("@")[0].replace(".", " ").title()
+        if name not in result:
+            result[name] = []
+        total = b["totalLinesAdded"] + b["totalLinesDeleted"]
+        ai = b["aiLinesAdded"] + b["aiLinesDeleted"]
+        result[name].append({
+            "month": month,
+            "totalLines": total,
+            "aiLines": ai,
+            "manualLines": total - ai,
+            "aiShare": round(ai / total * 100, 1) if total > 0 else 0,
+            "agentRequests": b["agentRequests"],
+            "chatRequests": b["chatRequests"],
+        })
+    return result
+
+
+def write_data_js(daily_data, leaderboard, user_monthly, output_path):
     """Write data.js file for the dashboard."""
     lines = ["const DATA = [\n"]
     for i, d in enumerate(daily_data):
@@ -208,7 +253,8 @@ def write_data_js(daily_data, leaderboard, output_path):
     for i, u in enumerate(leaderboard):
         comma = "," if i < len(leaderboard) - 1 else ""
         lines.append(f"  {json.dumps(u)}{comma}\n")
-    lines.append("];\n")
+    lines.append("];\n\n")
+    lines.append(f"const USER_MONTHLY = {json.dumps(user_monthly)};\n")
     with open(output_path, "w") as f:
         f.writelines(lines)
 
@@ -241,10 +287,14 @@ def main():
     leaderboard = aggregate_leaderboard(raw_rows)
     print(f"  Users with activity: {len(leaderboard)}\n")
 
+    print("Building per-user monthly data...")
+    user_monthly = aggregate_user_monthly(raw_rows)
+    print(f"  Users with monthly data: {len(user_monthly)}\n")
+
     script_dir = os.path.dirname(os.path.abspath(__file__))
     js_path = os.path.join(script_dir, "data.js")
 
-    write_data_js(daily_data, leaderboard, js_path)
+    write_data_js(daily_data, leaderboard, user_monthly, js_path)
     print(f"Wrote {js_path}")
 
     total_added = sum(d["totalLinesAdded"] for d in daily_data)
