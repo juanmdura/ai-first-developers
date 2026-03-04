@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zubale AI Analytics</title>
+  <link rel="icon" href="https://zubale.com/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #3B3FE6;
+      --blue-dark: #2E32B8;
+      --blue-light: #5A5EF0;
+      --navy: #0D0F33;
+      --navy-light: #1A1D4E;
+      --pink: #E84EA3;
+      --white: #FFFFFF;
+      --gray-50: #F8F9FC;
+      --gray-100: #F0F1F7;
+      --gray-200: #E2E4EE;
+      --gray-300: #C8CBE0;
+      --gray-500: #7B7FA3;
+      --gray-700: #3D4066;
+      --gray-900: #1A1D3B;
+      --radius: 16px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .topbar {
+      background: var(--blue);
+      padding: 0 40px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .topbar-brand { display: flex; align-items: center; gap: 14px; }
+    .topbar-logo { font-weight: 900; font-size: 22px; color: var(--white); letter-spacing: -0.5px; }
+    .topbar-sep { width: 1px; height: 24px; background: rgba(255,255,255,0.3); }
+    .topbar-subtitle { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.85); }
+    .topbar-meta { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.7); }
+
+    .container { max-width: 1280px; margin: 0 auto; padding: 32px 40px 56px; }
+    @media (max-width: 768px) { .topbar { padding: 0 20px; } .container { padding: 20px 20px 40px; } }
+
+    /* --- Section --- */
+    .section { margin-bottom: 40px; }
+    .section-title {
+      font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+      color: var(--blue); margin-bottom: 16px; padding-left: 4px;
+    }
+    .section-divider { border: none; border-top: 1px solid var(--gray-200); margin: 0 0 40px; }
+
+    /* --- Cards --- */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+    }
+
+    .card-accent {
+      border-left: 4px solid var(--blue);
+    }
+
+    /* --- Stat cards row --- */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 900px) { .stat-row { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 520px) { .stat-row { grid-template-columns: 1fr; } }
+
+    .stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-500); margin-bottom: 8px; }
+    .stat-value { font-size: 36px; font-weight: 900; letter-spacing: -1.2px; line-height: 1; }
+    .stat-sub { font-size: 13px; font-weight: 600; color: var(--gray-500); margin-top: 6px; }
+    .stat-accent { color: var(--blue); }
+    .stat-accent-pink { color: var(--pink); }
+
+
+    .stat-bar { height: 8px; border-radius: 4px; background: var(--gray-100); margin-top: 12px; overflow: hidden; }
+    .stat-bar-fill { height: 100%; border-radius: 4px; }
+
+    .chart-wrap { position: relative; width: 100%; height: 300px; }
+    canvas { width: 100% !important; height: 100% !important; }
+
+    /* --- Two-col layout --- */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* --- Leaderboard --- */
+    .dev-stat-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+    }
+    .dev-stat-row + .dev-stat-row { border-top: 1px solid var(--gray-100); }
+    .dev-stat-rank {
+      width: 28px; height: 28px; border-radius: 50%; background: var(--gray-100);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; color: var(--gray-500); flex-shrink: 0;
+    }
+    .dev-stat-rank.top { background: var(--blue); color: var(--white); }
+    .dev-stat-name { font-size: 14px; font-weight: 600; color: var(--gray-900); }
+    .dev-stat-bar-wrap { flex: 1; min-width: 60px; }
+    .dev-stat-bar-bg { height: 6px; background: var(--gray-100); border-radius: 3px; overflow: hidden; }
+    .dev-stat-bar-fill { height: 100%; border-radius: 3px; background: var(--blue); }
+    .dev-stat-val { font-size: 13px; font-weight: 700; color: var(--gray-700); width: 50px; text-align: right; flex-shrink: 0; }
+    .dev-stat-model { font-size: 11px; color: var(--gray-500); font-weight: 500; }
+
+    /* --- Usage Section --- */
+
+    .usage-chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .usage-chart-title { font-size: 15px; font-weight: 700; color: var(--gray-900); }
+    .usage-badge {
+      font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+      background: var(--gray-100); color: var(--blue); text-transform: uppercase; letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo">zubale</div>
+    <div class="topbar-sep"></div>
+    <div class="topbar-subtitle">AI Code Analytics</div>
+  </div>
+  <div class="topbar-meta" id="dateRange"></div>
+</nav>
+
+<div class="container">
+  <!-- Section 1: LOC AI vs Manual -->
+  <div class="section" id="sectionLoc"></div>
+
+  <hr class="section-divider">
+
+  <!-- Section 2: AI-first Developers -->
+  <div class="section" id="sectionDev"></div>
+
+  <hr class="section-divider">
+
+  <!-- Section 3: AI Usage -->
+  <div class="section" id="sectionUsage"></div>
+</div>
+
+<script src="data.js"></script>
+<script>
+(function() {
+  const dates = DATA.map(d => d.date);
+  document.getElementById('dateRange').textContent =
+    `${fmtDate(dates[0])} — ${fmtDate(dates[dates.length - 1])}`;
+
+  const totalAdded = sum('totalLinesAdded');
+  const totalDeleted = sum('totalLinesDeleted');
+  const totalModified = totalAdded + totalDeleted;
+  const aiAdded = sum('aiLinesAdded');
+  const aiDeleted = sum('aiLinesDeleted');
+  const aiTotal = aiAdded + aiDeleted;
+  const manualTotal = totalModified - aiTotal;
+  const pct = v => totalModified > 0 ? (v / totalModified * 100).toFixed(1) : '0';
+
+  // ----- Section 1: LOC AI vs Manual -----
+  const aiPctVal = totalModified > 0 ? (aiTotal / totalModified * 100).toFixed(1) : '0';
+
+  // monthly trend: compare last 30 days vs previous 30 days
+  const last30 = DATA.slice(-30);
+  const prev30 = DATA.slice(-60, -30);
+  const last30Ai = last30.reduce((a, d) => a + (d.aiLinesAdded || 0) + (d.aiLinesDeleted || 0), 0);
+  const prev30Ai = prev30.reduce((a, d) => a + (d.aiLinesAdded || 0) + (d.aiLinesDeleted || 0), 0);
+  const aiTrendPct = prev30Ai > 0 ? ((last30Ai - prev30Ai) / prev30Ai * 100).toFixed(0) : '—';
+  const aiTrendUp = last30Ai >= prev30Ai;
+  const last30Total = last30.reduce((a, d) => a + (d.totalLinesAdded || 0) + (d.totalLinesDeleted || 0), 0);
+  const prev30Total = prev30.reduce((a, d) => a + (d.totalLinesAdded || 0) + (d.totalLinesDeleted || 0), 0);
+  const totalTrendPct = prev30Total > 0 ? ((last30Total - prev30Total) / prev30Total * 100).toFixed(0) : '—';
+  const totalTrendUp = last30Total >= prev30Total;
+
+  document.getElementById('sectionLoc').innerHTML = `
+    <div class="section-title">Lines of Code: AI vs Manual</div>
+    <div class="stat-row">
+      <div class="card card-accent">
+        <div class="stat-label">Total Lines Modified</div>
+        <div class="stat-value">${fmtNum(totalModified)}</div>
+        <div class="stat-sub">${totalTrendUp ? '&#9650;' : '&#9660;'} ${totalTrendPct}% vs prev month</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">AI-generated</div>
+        <div class="stat-value stat-accent">${fmtNum(aiTotal)}</div>
+        <div class="stat-sub">${aiTrendUp ? '&#9650;' : '&#9660;'} ${aiTrendPct}% vs prev month</div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:${pct(aiTotal)}%;background:var(--blue)"></div></div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Manual</div>
+        <div class="stat-value stat-accent-pink">${fmtNum(manualTotal)}</div>
+        <div class="stat-sub">${pct(manualTotal)}% of total</div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:${pct(manualTotal)}%;background:var(--pink)"></div></div>
+      </div>
+      <div class="card card-accent">
+        <div class="stat-label">AI Share</div>
+        <div class="stat-value stat-accent">${aiPctVal}%</div>
+        <div class="stat-sub">of all lines modified</div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="usage-chart-header">
+        <div class="usage-chart-title">Distribution</div>
+      </div>
+      <div class="chart-wrap" style="height:120px"><canvas id="chartDistribution"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="usage-chart-header">
+        <div class="usage-chart-title">AI vs Manual Over Time</div>
+        <div class="usage-badge">Daily Lines</div>
+      </div>
+      <div class="chart-wrap"><canvas id="chartLines"></canvas></div>
+    </div>`;
+
+  // ----- Section 2: AI-first Developers -----
+  const allDevs = LEADERBOARD;
+  const maxAi = allDevs.length > 0 ? allDevs[0].aiLinesAdded + allDevs[0].aiLinesDeleted : 1;
+  const peakUsers = Math.max(...DATA.map(d => d.uniqueUsers || 0));
+  const avgUsers = Math.round(DATA.reduce((a, d) => a + (d.uniqueUsers || 0), 0) / DATA.length);
+  const avgAiShare = allDevs.length > 0 ? (allDevs.reduce((a, u) => a + u.aiShare, 0) / allDevs.length).toFixed(1) : '0';
+  const sortedShares = [...allDevs].map(u => u.aiShare).sort((a, b) => a - b);
+  const medianAiShare = sortedShares.length > 0
+    ? (sortedShares.length % 2 === 0
+      ? ((sortedShares[sortedShares.length/2 - 1] + sortedShares[sortedShares.length/2]) / 2).toFixed(1)
+      : sortedShares[Math.floor(sortedShares.length/2)].toFixed(1))
+    : '0';
+  const minAiShare = sortedShares.length > 0 ? sortedShares[0].toFixed(1) : '0';
+  const maxAiShare = sortedShares.length > 0 ? sortedShares[sortedShares.length - 1].toFixed(1) : '0';
+  const above50 = allDevs.filter(u => u.aiShare >= 50).length;
+  const topDev = allDevs[0] || {};
+  const highAiDev = [...allDevs].sort((a, b) => b.aiShare - a.aiShare)[0] || {};
+  const totalTabsAccepted = allDevs.reduce((a, u) => a + (u.totalTabsAccepted || 0), 0);
+  const totalTabsShown = allDevs.reduce((a, u) => a + (u.totalTabsShown || 0), 0);
+  const tabAcceptRate = totalTabsShown > 0 ? (totalTabsAccepted / totalTabsShown * 100).toFixed(1) : '0';
+
+  let lbRows = '';
+  const maxTotal = allDevs.length > 0 ? allDevs.reduce((mx, u) => Math.max(mx, u.totalLinesAdded + u.totalLinesDeleted), 0) : 1;
+  allDevs.forEach(u => {
+    const ai = u.aiLinesAdded + u.aiLinesDeleted;
+    const total = u.totalLinesAdded + u.totalLinesDeleted;
+    const manual = total - ai;
+    const barW = Math.max(2, total / maxTotal * 100);
+    const aiBarW = total > 0 ? (ai / total * 100) : 0;
+    const isTop = u.rank <= 3;
+    lbRows += `
+      <div class="dev-stat-row">
+        <div class="dev-stat-rank ${isTop ? 'top' : ''}">${u.rank}</div>
+        <div style="flex:1;min-width:0">
+          <div class="dev-stat-name">${u.name}</div>
+          ${u.favoriteModel ? `<div class="dev-stat-model">${u.favoriteModel}</div>` : ''}
+        </div>
+        <div class="dev-stat-bar-wrap">
+          <div class="dev-stat-bar-bg"><div class="dev-stat-bar-fill" style="width:${barW}%;background:linear-gradient(90deg,var(--blue) ${aiBarW}%,var(--pink) ${aiBarW}%)"></div></div>
+        </div>
+        <div class="dev-stat-val">${fmtNum(total)}</div>
+        <div class="dev-stat-val" style="color:var(--blue)">${fmtNum(ai)}</div>
+        <div class="dev-stat-val" style="color:var(--pink)">${fmtNum(manual)}</div>
+        <div class="dev-stat-val" style="color:var(--blue)">${u.aiShare}%</div>
+      </div>`;
+  });
+
+  document.getElementById('sectionDev').innerHTML = `
+    <div class="section-title">AI-first Developers</div>
+    <div class="stat-row">
+      <div class="card card-accent">
+        <div class="stat-label">Active Users</div>
+        <div class="stat-value">${allDevs.length}</div>
+        <div class="stat-sub">Peak: ${peakUsers} &middot; Avg: ${avgUsers}/day</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">AI Share across developers</div>
+        <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px">
+          <div style="font-size:28px;font-weight:900;color:var(--blue);letter-spacing:-1px;line-height:1">${avgAiShare}%</div>
+          <div style="font-size:12px;font-weight:600;color:var(--gray-500)">avg</div>
+          <div style="font-size:20px;font-weight:800;color:var(--gray-700);letter-spacing:-0.5px">${medianAiShare}%</div>
+          <div style="font-size:12px;font-weight:600;color:var(--gray-500)">median</div>
+        </div>
+        <div style="display:flex;gap:16px;font-size:12px;font-weight:600;color:var(--gray-500);margin-bottom:8px">
+          <span>Min: ${minAiShare}%</span>
+          <span>Max: ${maxAiShare}%</span>
+          <span style="color:var(--blue)">${above50} of ${allDevs.length} devs &ge;50%</span>
+        </div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:${avgAiShare}%;background:var(--blue)"></div></div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Top Contributor</div>
+        <div class="stat-value" style="font-size:22px;letter-spacing:0">${topDev.name || '—'}</div>
+        <div class="stat-sub">${fmtNum((topDev.aiLinesAdded||0)+(topDev.aiLinesDeleted||0))} AI lines &middot; ${topDev.aiShare||0}%</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Tab Accept Rate</div>
+        <div class="stat-value">${tabAcceptRate}%</div>
+        <div class="stat-sub">${fmtNum(totalTabsAccepted)} of ${fmtNum(totalTabsShown)} suggestions</div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="usage-chart-header">
+          <div class="usage-chart-title">Active Users Over Time</div>
+          <div class="usage-badge">Daily</div>
+        </div>
+        <div class="chart-wrap" style="height:340px"><canvas id="chartUsers"></canvas></div>
+      </div>
+      <div class="card" style="overflow-y:auto;max-height:440px">
+        <div class="usage-chart-header" style="position:sticky;top:0;background:var(--white);padding-bottom:8px;z-index:1">
+          <div class="usage-chart-title">Leaderboard</div>
+          <div style="display:flex;gap:4px">
+            <div class="usage-badge">Total</div>
+            <div class="usage-badge">AI</div>
+            <div class="usage-badge">Manual</div>
+            <div class="usage-badge">AI %</div>
+          </div>
+        </div>
+        ${lbRows}
+      </div>
+    </div>`;
+
+  // ----- Section 3: AI Usage -----
+  const totalAgentReqs = sum('agentRequests');
+  const totalChatReqs = sum('chatRequests');
+  const totalReqs = totalAgentReqs + totalChatReqs;
+
+  document.getElementById('sectionUsage').innerHTML = `
+    <div class="section-title">AI Usage</div>
+    <div class="two-col">
+      <div class="card">
+        <div class="usage-chart-header">
+          <div class="usage-chart-title">AI Requests</div>
+          <div class="usage-badge">Agent + Chat</div>
+        </div>
+        <div style="display:flex;gap:32px;margin-bottom:16px">
+          <div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:4px">Total</div>
+            <div style="font-size:28px;font-weight:900;letter-spacing:-1px">${fmtNum(totalReqs)}</div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:4px">Agent</div>
+            <div style="font-size:20px;font-weight:800;color:var(--blue)">${fmtNum(totalAgentReqs)}</div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:4px">Chat</div>
+            <div style="font-size:20px;font-weight:800;color:#8B8EF5">${fmtNum(totalChatReqs)}</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:260px"><canvas id="chartRequests"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="usage-chart-header">
+          <div class="usage-chart-title">Added vs Deleted</div>
+          <div class="usage-badge">By Operation</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px">
+          <div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:4px">Lines Added</div>
+            <div style="font-size:28px;font-weight:900;letter-spacing:-1px">${fmtNum(totalAdded)}</div>
+            <div style="font-size:12px;margin-top:2px"><span style="color:var(--blue)">AI: ${fmtNum(aiAdded)}</span> <span style="color:var(--gray-300)">&middot;</span> <span style="color:var(--pink)">Manual: ${fmtNum(totalAdded - aiAdded)}</span></div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:4px">Lines Deleted</div>
+            <div style="font-size:28px;font-weight:900;letter-spacing:-1px">${fmtNum(totalDeleted)}</div>
+            <div style="font-size:12px;margin-top:2px"><span style="color:var(--blue)">AI: ${fmtNum(aiDeleted)}</span> <span style="color:var(--gray-300)">&middot;</span> <span style="color:var(--pink)">Manual: ${fmtNum(totalDeleted - aiDeleted)}</span></div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:260px"><canvas id="chartOps"></canvas></div>
+      </div>
+    </div>`;
+
+  // === CHARTS ===
+  const BLUE = '#3B3FE6'; const BLUE_A = 'rgba(59,63,230,0.2)';
+  const PINK = '#E84EA3'; const PINK_A = 'rgba(232,78,163,0.15)';
+  const GRAY = '#7B7FA3'; const GRAY_A = 'rgba(123,127,163,0.12)';
+  const GRID = 'rgba(226,228,238,0.6)'; const TICK = '#7B7FA3';
+
+  const scaleX = {
+    type: 'time', time: { unit: 'month', tooltipFormat: 'MMM d, yyyy' },
+    ticks: { color: TICK, font: { family: 'Inter', size: 10 }, maxRotation: 0 },
+    grid: { color: GRID, drawBorder: false },
+  };
+  const scaleY = {
+    ticks: { color: TICK, font: { family: 'Inter', size: 10 } },
+    grid: { color: GRID, drawBorder: false }, beginAtZero: true,
+  };
+  const tooltipOpts = {
+    backgroundColor: '#0D0F33', titleColor: '#fff', bodyColor: '#C8CBE0',
+    borderColor: '#2a2e5a', borderWidth: 1, cornerRadius: 10, padding: 12,
+    titleFont: { family: 'Inter', weight: '600' }, bodyFont: { family: 'Inter' },
+  };
+  const baseOpts = {
+    responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 14 } },
+      tooltip: tooltipOpts,
+    },
+    scales: { x: scaleX, y: scaleY },
+  };
+
+  // Chart: LOC Distribution (horizontal bar)
+  new Chart(document.getElementById('chartDistribution'), {
+    type: 'bar',
+    data: {
+      labels: ['Lines of Code'],
+      datasets: [
+        { label: 'AI Added',      data: [aiAdded],              backgroundColor: BLUE,      borderRadius: 3 },
+        { label: 'AI Deleted',     data: [aiDeleted],            backgroundColor: '#8B8EF5', borderRadius: 3 },
+        { label: 'Manual Added',   data: [totalAdded - aiAdded], backgroundColor: PINK,      borderRadius: 3 },
+        { label: 'Manual Deleted', data: [totalDeleted - aiDeleted], backgroundColor: '#F5A3D0', borderRadius: 3 },
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 20 } },
+        tooltip: { ...tooltipOpts, callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.x.toLocaleString()}` } },
+      },
+      scales: {
+        x: { stacked: true, grid: { color: GRID, drawBorder: false }, ticks: { color: TICK, font: { family: 'Inter', size: 10 }, callback: v => v >= 1000000 ? (v/1000000).toFixed(1)+'M' : v >= 1000 ? (v/1000).toFixed(0)+'k' : v } },
+        y: { stacked: true, display: false },
+      }
+    }
+  });
+
+  // Chart: Lines of Code (AI vs Manual + AI%)
+  new Chart(document.getElementById('chartLines'), {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [
+        { label: 'AI', data: DATA.map(d => d.aiLinesAdded + d.aiLinesDeleted), backgroundColor: BLUE_A, borderColor: BLUE, borderWidth: 2, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8, order: 2, yAxisID: 'y' },
+        { label: 'Manual', data: DATA.map(d => d.nonAiLinesAdded + d.nonAiLinesDeleted), backgroundColor: PINK_A, borderColor: PINK, borderWidth: 1.5, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8, order: 3, yAxisID: 'y' },
+        { label: 'AI %', data: DATA.map(d => { const t = d.totalLinesAdded + d.totalLinesDeleted; return t > 0 ? ((d.aiLinesAdded + d.aiLinesDeleted) / t * 100) : null; }), borderColor: '#8B8EF5', borderWidth: 2, borderDash: [5, 3], fill: false, tension: 0.3, pointRadius: 0, pointHitRadius: 8, order: 1, yAxisID: 'yPct' }
+      ]
+    },
+    options: {
+      ...baseOpts,
+      plugins: { ...baseOpts.plugins, tooltip: { ...tooltipOpts, callbacks: { label: ctx => ctx.dataset.yAxisID === 'yPct' ? `AI %: ${ctx.parsed.y?.toFixed(1)}%` : `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}` } } },
+      scales: {
+        x: scaleX,
+        y: { ...scaleY, stacked: true, position: 'left', title: { display: true, text: 'Lines', color: TICK, font: { family: 'Inter', size: 10 } } },
+        yPct: { position: 'right', min: 0, max: 100, ticks: { color: '#8B8EF5', font: { family: 'Inter', size: 10 }, callback: v => v + '%' }, grid: { drawOnChartArea: false }, title: { display: true, text: 'AI %', color: '#8B8EF5', font: { family: 'Inter', size: 10 } } }
+      }
+    }
+  });
+
+  // Chart: Active Users + trend line
+  const usersData = DATA.map(d => d.uniqueUsers || 0);
+  const usersN = usersData.length;
+  const usersXmean = (usersN - 1) / 2;
+  const usersYmean = usersData.reduce((a, v) => a + v, 0) / usersN;
+  let usersNum = 0, usersDen = 0;
+  for (let i = 0; i < usersN; i++) {
+    usersNum += (i - usersXmean) * (usersData[i] - usersYmean);
+    usersDen += (i - usersXmean) * (i - usersXmean);
+  }
+  const usersSlope = usersDen !== 0 ? usersNum / usersDen : 0;
+  const usersIntercept = usersYmean - usersSlope * usersXmean;
+  const usersTrend = usersData.map((_, i) => +(usersIntercept + usersSlope * i).toFixed(1));
+
+  new Chart(document.getElementById('chartUsers'), {
+    type: 'line',
+    data: { labels: dates, datasets: [
+      { label: 'Users', data: DATA.map(d => d.uniqueUsers || null), borderColor: BLUE, backgroundColor: BLUE_A, borderWidth: 2, fill: true, tension: 0.35, pointRadius: 0, pointHitRadius: 8 },
+      { label: 'Trend', data: usersTrend, borderColor: '#E84EA3', borderWidth: 2, borderDash: [6, 4], fill: false, pointRadius: 0, pointHitRadius: 0, tension: 0 }
+    ] },
+    options: { ...baseOpts, plugins: { ...baseOpts.plugins, legend: { labels: { color: TICK, font: { family: 'Inter', size: 11 }, boxWidth: 12, padding: 14 } } }, scales: { x: scaleX, y: { ...scaleY, title: { display: false } } } }
+  });
+
+  // Chart: AI Requests
+  const reqsData = DATA.map(d => (d.agentRequests || 0) + (d.chatRequests || 0));
+  const reqsN = reqsData.length;
+  const reqsXmean = (reqsN - 1) / 2;
+  const reqsYmean = reqsData.reduce((a, v) => a + v, 0) / reqsN;
+  let reqsNum = 0, reqsDen = 0;
+  for (let i = 0; i < reqsN; i++) {
+    reqsNum += (i - reqsXmean) * (reqsData[i] - reqsYmean);
+    reqsDen += (i - reqsXmean) * (i - reqsXmean);
+  }
+  const reqsSlope = reqsDen !== 0 ? reqsNum / reqsDen : 0;
+  const reqsIntercept = reqsYmean - reqsSlope * reqsXmean;
+  const reqsTrend = reqsData.map((_, i) => +(reqsIntercept + reqsSlope * i).toFixed(1));
+
+  new Chart(document.getElementById('chartRequests'), {
+    type: 'bar',
+    data: {
+      labels: dates,
+      datasets: [
+        { label: 'Agent', data: DATA.map(d => d.agentRequests), backgroundColor: 'rgba(59,63,230,0.5)', borderColor: BLUE, borderWidth: 1, borderRadius: 2, stack: 'reqs' },
+        { label: 'Chat', data: DATA.map(d => d.chatRequests), backgroundColor: 'rgba(139,142,245,0.4)', borderColor: '#8B8EF5', borderWidth: 1, borderRadius: 2, stack: 'reqs' },
+        { label: 'Trend', data: reqsTrend, type: 'line', borderColor: '#E84EA3', borderWidth: 2, borderDash: [6, 4], fill: false, pointRadius: 0, pointHitRadius: 0, tension: 0, stack: false }
+      ]
+    },
+    options: { ...baseOpts, scales: { x: { ...scaleX, stacked: true }, y: { ...scaleY, stacked: true } } }
+  });
+
+  // Chart: By Operation (Added vs Deleted)
+  new Chart(document.getElementById('chartOps'), {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [
+        { label: 'Added', data: DATA.map(d => d.totalLinesAdded), borderColor: '#1A1D3B', backgroundColor: 'rgba(26,29,59,0.12)', borderWidth: 2, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8 },
+        { label: 'Deleted', data: DATA.map(d => d.totalLinesDeleted), borderColor: '#7B7FA3', backgroundColor: 'rgba(123,127,163,0.1)', borderWidth: 1.5, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8 }
+      ]
+    },
+    options: { ...baseOpts, scales: { x: scaleX, y: scaleY } }
+  });
+
+  // --- Helpers ---
+  function sum(key) { return DATA.reduce((a, d) => a + (d[key] || 0), 0); }
+  function fmtNum(n) {
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
+    return n.toString();
+  }
+  function fmtDate(str) {
+    const d = new Date(str + 'T00:00:00');
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+})();
+</script>
+</body>
+</html>
